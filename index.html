@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hành Trình Thanh Xuân</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="screen1">
+        <h1>Hành Trình Thanh Xuân</h1>
+        <p class="quote">Some memories deserve to become a movie.</p>
+        <p class="enter">Press ENTER</p>
+    </div>
+
+    <div id="curtain">
+        <div class="curtain left"></div>
+        <div class="curtain right"></div>
+    </div>
+
+    <div id="countdown">
+        <div id="count-number">3</div>
+    </div>
+
+    <div id="opening">
+        <h2>HÀNH TRÌNH THANH XUÂN</h2>
+    </div>
+
+    <div id="chapter1" class="chapter-screen">
+        <div class="chapter-content">
+            <h2 class="chapter-number">CHAPTER 01</h2>
+            <h1 class="chapter-title">The Beginning</h1>
+            <p class="chapter-date">02.05.2026 — 31.05.2026</p>
+        </div>
+    </div>
+
+    <video id="video1" playsinline preload="none">
+        <source src="assets/videos/video1.mp4" type="video/mp4">
+    </video>
+    
+    <div id="typewriter-left" class="typewriter-text top-left"></div>
+    <div id="typewriter-right" class="typewriter-text bottom-right"></div>
+
+    <video id="video2" playsinline preload="none">
+        <source src="assets/videos/video2.mp4" type="video/mp4">
+    </video>
+
+    <video id="video3" playsinline preload="none">
+        <source src="assets/videos/video3.mp4" type="video/mp4">
+    </video>
+
+    <div id="typewriter-v3-left" class="typewriter-text top-left"></div>
+    <div id="typewriter-v3-right" class="typewriter-text bottom-right"></div>
+
+    <video id="video4" playsinline preload="none">
+        <source src="assets/videos/video4.mp4" type="video/mp4">
+    </video>
+    <video id="video5" playsinline preload="none">
+        <source src="assets/videos/video5.mp4" type="video/mp4">
+    </video>
+    <video id="video6" playsinline preload="none">
+        <source src="assets/videos/video6.mp4" type="video/mp4">
+    </video>
+
+    <!-- Màn hình hiện Quote & chữ To Be Continued của Chap 3 -->
+    <div id="outro-screen">
+        <p id="outro-text"></p>
+        <p id="tbc-highlight" class="tbc-highlight"></p>
+    </div>
+
+    <div id="chapter2-screen" class="chapter-screen">
+        <div class="chapter-content">
+            <h2 class="chapter-number">CHAPTER 02</h2>
+            <h1 class="chapter-title">The Days We Shared</h1>
+            <p class="chapter-date">01/06 — 31/06</p>
+        </div>
+    </div>
+
+    <!-- TIÊU ĐỀ CHAPTER 3 -->
+    <div id="chapter3" class="chapter-title">
+        <h2>CHAPTER 03</h2>
+        <h1>PRESENT AND FUTURE</h1>
+    </div>
+
+    <!-- Video 7 -->
+    <video id="video7" src="assets/videos/video7.mp4" playsinline></video>
+
+    <img id="imageViewer" src="" alt="">
+    
+    <audio id="projectorStart" src="assets/audio/projector-start.mp3"></audio>
+    <audio id="projectorLoop" src="assets/audio/projector-loop.mp3" loop></audio>
+    <audio id="bgm" loop>
+        <source src="assets/audio/bgm.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgm2" loop>
+        <source src="assets/audio/bgm2.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgm3" src="assets/audio/bgm3.mp3" loop preload="auto"></audio>
+
+    <!-- KHU VỰC MOVIE CREDITS (OUTRO TOÀN PHIM) -->
+    <div id="credits-screen" class="credits-container">
+        <div class="credits-content">
+            <h1 class="credits-title">"THANH XUÂN RỰC RỠ"</h1>
+
+            <div class="credits-group">
+                <p class="credits-role">Directed by</p>
+                <p class="credits-name">Duy Hùng</p>
+            </div>
+
+            <div class="credits-group">
+                <p class="credits-role">Produced by</p>
+                <p class="credits-name">Duy Hùng</p>
+            </div>
+
+            <div class="credits-group">
+                <p class="credits-role">Written by</p>
+                <p class="credits-name">Duy Hùng</p>
+            </div>
+
+            <div class="credits-group">
+                <p class="credits-role">Cinematography by</p>
+                <p class="credits-name">Duy Hùng</p>
+            </div>
+
+            <div class="credits-group">
+                <p class="credits-role">Edited by</p>
+                <p class="credits-name">Duy Hùng</p>
+            </div>
+
+            <div class="credits-group">
+                <p class="credits-role">Music by</p>
+                <p class="credits-name">Duy Hùng</p>
+            </div>
+
+            <div class="credits-group">
+                <p class="credits-role">Special Thanks to</p>
+                <p class="credits-name">Duy Hùng</p>
+            </div>
+
+            <div class="credits-end">THE END</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
