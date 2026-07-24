@@ -1,0 +1,632 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    color: #f5f5f5;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    
+    /* Background ban đầu */
+    background-image: url("assets/images/background.jpg");
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    /* Chuyển đổi nền mượt mà */
+    transition: background-image 1.2s ease-in-out;
+}
+
+/* Các Class đổi background theo tiến trình */
+body.bg-movie {
+    background-image: url("assets/images/background1.jpg") !important;
+}
+
+body.bg-chapter1 {
+    background-image: url("assets/images/background2.jpg") !important;
+}
+
+body.bg-chapter2 {
+    background-image: url("assets/images/chapter2.jpg") !important;
+}
+
+body.bg-chapter3 {
+    background-image: url("assets/images/chapter3.jpg") !important;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .35);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ===========================
+        SCREEN 1 (INTRO)
+=========================== */
+
+#screen1 {
+    text-align: center;
+    animation: fadeIn 1.6s ease;
+    transition: opacity 1s ease;
+}
+
+h1 {
+    font-family: "Cinzel", serif;
+    font-size: 64px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px rgba(255, 255, 255, .08);
+    text-align: center;
+}
+
+.quote {
+    margin-top: 28px;
+    font-size: 18px;
+    font-style: italic;
+    color: #d2d2d2;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+}
+
+.enter {
+    margin-top: 140px;
+    font-size: 17px;
+    color: #8d8d8d;
+    letter-spacing: 2px;
+    font-family: 'Inter', sans-serif;
+    animation: blink 2s infinite;
+    text-align: center;
+}
+
+.fade-out {
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: .35; }
+    50% { opacity: 1; }
+}
+
+/* ===========================
+        CURTAIN (RÈM)
+=========================== */
+
+#curtain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.curtain {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        90deg,
+        #500000 0px,
+        #6b0000 18px,
+        #8b0000 36px,
+        #a51515 54px,
+        #8b0000 72px,
+        #6b0000 90px,
+        #500000 108px
+    );
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, .45), inset 0 0 10px rgba(255, 255, 255, .08);
+    transition: transform 1.2s ease-in-out;
+}
+
+.left { left: 0; transform: translateX(-100%); }
+.right { right: 0; transform: translateX(100%); }
+
+#curtain.close .left, #curtain.close .right { transform: translateX(0); }
+#curtain.open .left { transform: translateX(-100%); }
+#curtain.open .right { transform: translateX(100%); }
+
+/* ===========================
+      COUNTDOWN (VINTAGE)
+=========================== */
+
+#countdown {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #5a5a5a;
+    color: white;
+    font-family: "Cinzel", serif;
+    font-size: 180px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    z-index: 50;
+    overflow: hidden;
+}
+
+#countdown::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    background: rgba(0, 0, 0, 0.75);
+    transform: translateX(-50%);
+}
+
+#countdown::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.75);
+    transform: translateY(-50%);
+}
+
+#count-number {
+    position: relative;
+    z-index: 2;
+}
+
+#countdown.show {
+    opacity: 1;
+}
+
+/* ===========================
+        OPENING (THANH XUÂN)
+=========================== */
+
+#opening {
+    position: fixed;
+    overflow: hidden;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+    z-index: 60;
+}
+
+#opening.show { opacity: 1; }
+#opening.hide { opacity: 0; }
+
+#opening h2 {
+    font-family: "Cinzel", serif;
+    font-size: 70px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    color: #f5f5f5;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+
+    text-shadow: 
+        1px 1px 0px #000000,
+        2px 2px 0px #000000,
+        3px 3px 0px #000000,
+        4px 4px 0px #000000,
+        5px 5px 0px #000000,
+        6px 6px 0px #000000,
+        7px 7px 0px #000000,
+        10px 10px 15px rgba(0, 0, 0, 0.8),
+        12px 12px 25px rgba(0, 0, 0, 0.6);
+}
+
+/* ===========================
+        CHAPTER I & CHAPTER TITLES
+=========================== */
+
+#chapter1 {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    color: #f5f5f5;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 1.2s ease;
+    z-index: 80;
+    text-align: center;
+}
+
+#chapter1.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#chapter1 h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    letter-spacing: 6px;
+    color: #d5d5d5;
+    margin-bottom: 18px;
+    text-align: center;
+}
+
+#chapter1 h1 {
+    font-family: "Cinzel", serif;
+    font-size: 62px;
+    font-weight: 700;
+    color: #f5f5f5;
+    text-align: center;
+    
+    text-shadow: 
+        1px 1px 0px #000000,
+        2px 2px 0px #000000,
+        3px 3px 0px #000000,
+        4px 4px 0px #000000,
+        5px 5px 0px #000000,
+        6px 6px 0px #000000,
+        7px 7px 0px #000000,
+        10px 10px 15px rgba(0, 0, 0, 0.8),
+        12px 12px 25px rgba(0, 0, 0, 0.6);
+}
+
+#chapter1 p {
+    margin-top: 22px;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    color: #c5c5c5;
+    text-align: center;
+}
+
+#chapter1.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* --- CHAPTER 03 TITLES --- */
+#chapter3 {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100vw;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1.5s ease;
+}
+
+#chapter3 h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    letter-spacing: 10px;
+    color: #fce8ad;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(252, 232, 173, 0.5);
+    text-align: center;
+}
+
+#chapter3 h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 56px;
+    letter-spacing: 8px;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* ===========================
+     VIDEO & IMAGE VIEWER
+=========================== */
+
+video, #imageViewer {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+    background-color: #000;
+    display: block;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 90;
+
+    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+}
+
+video.show, #imageViewer.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#imageViewer {
+    transform: scale(1);
+    transition: opacity 1.2s ease-in-out, transform 4s ease-out;
+}
+
+#imageViewer.show {
+    transform: scale(1.04);
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.6) 100%);
+    pointer-events: none;
+    z-index: 95;
+}
+
+/* ===========================
+    TYPEWRITER TEXT ON VIDEO
+=========================== */
+
+/* ===========================
+    TYPEWRITER TEXT ON VIDEO
+=========================== */
+
+.typewriter-text {
+    position: fixed;
+    z-index: 95;
+    font-family: 'Cinzel', serif;
+    font-size: 24px; /* Giảm nhẹ font-size cho gọn gàng */
+    font-weight: 600;
+    color: #fce8ad;
+    
+    text-shadow: 
+        1px 1px 2px #000,
+        0 0 10px rgba(252, 232, 173, 0.4);
+
+    pointer-events: none;
+    max-width: 260px; /* Thu hẹp chiều rộng để chữ dồn thành 2-3 dòng ngắn */
+    line-height: 1.5;
+    letter-spacing: 1px;
+}
+
+/* CÂU TRÊN - NẰM HOÀN TOÀN TRONG MÀN ĐEN BÊN TRÁI */
+.top-left {
+    top: 15%;
+    left: 20px; /* Cố định cách mép trái màn hình 20px, nằm trọn trong vùng đen */
+    text-align: left;
+}
+
+/* CÂU DƯỚI - NẰM HOÀN TOÀN TRONG MÀN ĐEN BÊN PHẢI */
+.bottom-right {
+    bottom: 15%;
+    right: 20px; /* Cố định cách mép phải màn hình 20px, nằm trọn trong vùng đen */
+    text-align: right;
+}
+
+.typewriter-text::after {
+    content: "|";
+    display: inline-block;
+    margin-left: 3px;
+    animation: cursorBlink 0.7s infinite;
+    color: #fce8ad;
+}
+
+.typewriter-text.done::after {
+    display: none;
+}
+
+@keyframes cursorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* ===========================
+    CHAPTER OUTRO SCREEN
+=========================== */
+
+#outro-screen {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s ease-in-out;
+}
+
+#outro-screen.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#outro-text {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #fce8ad;
+    max-width: 700px;
+    text-align: center;
+    line-height: 1.6;
+    padding: 0 20px;
+    letter-spacing: 1px;
+}
+
+#outro-text::after {
+    content: "|";
+    display: inline-block;
+    margin-left: 5px;
+    animation: cursorBlink 0.7s infinite;
+}
+
+#outro-text.done::after {
+    display: none;
+}
+
+.chapter-screen {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.chapter-screen.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+.tbc-highlight {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffeb3b; /* Màu vàng nổi bật hoặc đổi tùy thích */
+    letter-spacing: 3px;
+    margin-top: 20px;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    text-shadow: 0 0 10px rgba(255, 235, 59, 0.6);
+}
+
+/* Khung hiển thị câu nói chính (nằm giữa) */
+.outro-screen {
+    position: relative; /* Đảm bảo góc dưới phải ăn theo khung hình */
+}
+
+/* Chữ "To be continued..." ở góc dưới bên phải */
+.tbc-highlight {
+    position: absolute;
+    bottom: 40px;          /* Cách đáy 40px */
+    right: 50px;           /* Cách lề phải 50px */
+    font-size: 1.8rem;
+    font-weight: 600;
+    font-style: italic;
+    color: #ffeb3b;        /* Màu vàng ấm áp nổi bật */
+    letter-spacing: 2px;
+    margin: 0;
+    opacity: 1;            /* Hiệu ứng gõ chữ typewriter sẽ tự làm hiện dần */
+    text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
+    z-index: 10;
+}
+/* Container màn hình đen bao trùm */
+.credits-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    z-index: 9999;
+    overflow: hidden;
+    opacity: 0; /* Mặc định ẩn hoàn toàn */
+    pointer-events: none;
+    transition: opacity 0.5s ease; /* Hiện mượt mà, tránh nháy */
+}
+
+/* Khi kích hoạt hiện màn hình credits */
+.credits-container.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Khối nội dung chữ - Mặc định giấu tít xuống dưới màn hình */
+.credits-content {
+    position: absolute;
+    width: 100%;
+    top: 100vh; /* Nằm ngay dưới mép đáy màn hình */
+    left: 0;
+    text-align: center;
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    will-change: transform; /* Tối ưu hóa mượt hơn */
+}
+
+/* Kích hoạt trôi chữ */
+.credits-container.start .credits-content {
+    animation: rollCredits 22s linear forwards;
+}
+
+/* KEYFRAMES: Trôi từ đáy lên hẳn đỉnh màn hình */
+@keyframes rollCredits {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        /* -100% (chiều cao toàn bộ chữ) - 100vh (chiều cao màn hình) 
+           đảm bảo dòng chữ cuối cùng trôi sạch khỏi mép trên, để lại màn hình hoàn toàn đen */
+        transform: translateY(calc(-100% - 100vh));
+    }
+}
+
+/* Kiểu chữ chuẩn danh xưng phim */
+.credits-title {
+    font-size: 2.2rem;
+    letter-spacing: 3px;
+    margin-bottom: 50px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.credits-group {
+    margin-bottom: 35px;
+}
+
+.credits-role {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+.credits-name {
+    font-size: 1.15rem;
+    color: #dddddd;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.credits-end {
+    margin-top: 60px;
+    font-size: 1.8rem;
+    letter-spacing: 5px;
+    font-weight: bold;
+    color: #ffeb3b;
+}
