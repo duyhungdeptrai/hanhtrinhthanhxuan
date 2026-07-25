@@ -1,7 +1,7 @@
 // Preload trước các hình nền
-new Image().src = "assets/images/background1.jpg";
-new Image().src = "assets/images/background2.jpg";
-new Image().src = "assets/images/chapter2.jpg";
+new Image().src = "images/background1.jpg";
+new Image().src = "images/background2.jpg";
+new Image().src = "images/chapter2.jpg";
 
 const screen1 = document.getElementById("screen1");
 const curtain = document.getElementById("curtain");
@@ -174,13 +174,13 @@ function playVideo1() {
 
             // Trình chiếu Slide Ảnh
             if (imageViewer) {
-                imageViewer.src = "assets/images/image1.jpg";
+                imageViewer.src = "images/image1.jpg";
                 imageViewer.classList.add("show");
             }
 
-            setTimeout(() => changeImage("assets/images/image2.jpg"), 3000);
-            setTimeout(() => changeImage("assets/images/image3.jpg"), 6000);
-            setTimeout(() => changeImage("assets/images/image4.jpg"), 9000);
+            setTimeout(() => changeImage("images/image2.jpg"), 3000);
+            setTimeout(() => changeImage("images/image3.jpg"), 6000);
+            setTimeout(() => changeImage("images/image4.jpg"), 9000);
 
             setTimeout(() => {
                 if (imageViewer) imageViewer.classList.remove("show");
@@ -280,12 +280,12 @@ function runChapter2Content() {
 
         playMutedVideo(video4, () => {
             if (imageViewer) {
-                imageViewer.src = "assets/images/image5.jpg";
+                imageViewer.src = "images/image5.jpg";
                 imageViewer.classList.add("show");
             }
 
-            setTimeout(() => changeImage("assets/images/image6.jpg"), 3000);
-            setTimeout(() => changeImage("assets/images/image7.jpg"), 6000);
+            setTimeout(() => changeImage("images/image6.jpg"), 3000);
+            setTimeout(() => changeImage("images/image7.jpg"), 6000);
 
             setTimeout(() => {
                 if (imageViewer) imageViewer.classList.remove("show");
@@ -295,11 +295,11 @@ function runChapter2Content() {
                 playMutedVideo(video5, () => {
                     playMutedVideo(video6, () => {
                         if (imageViewer) {
-                            imageViewer.src = "assets/images/image8.jpg";
+                            imageViewer.src = "images/image8.jpg";
                             imageViewer.classList.add("show");
                         }
 
-                        setTimeout(() => changeImage("assets/images/image9.jpg"), 3000);
+                        setTimeout(() => changeImage("images/image9.jpg"), 3000);
 
                         setTimeout(() => {
                             if (imageViewer) imageViewer.classList.remove("show");
@@ -372,7 +372,7 @@ function runChapter2Outro() {
                     }
                     
                     startChapter3(); // Bắt đầu Chapter 3 (Bật bgm3)
-                }, 2100); // 👈 Đã tăng thời gian chờ lên 2.1s để khớp với thời gian fade-out
+                }, 2100);
 
             }, 5000); // Đợi 5s cho người xem đọc xong câu quote
         });
@@ -582,7 +582,6 @@ function runChapter3Ending() {
     const outroScreen = document.getElementById("outro-screen");
     const outroText = document.getElementById("outro-text");
     
-    // 👈 THÊM DÒNG NÀY VÀO ĐỂ SỬA LỖI:
     const tbcHighlight = document.getElementById("tbc-highlight");
 
     const quote2 = "Hy vọng sau này chúng ta vẫn luôn cùng nhau bước tiếp trên những hành trình phía trước...";
@@ -623,13 +622,13 @@ function runChapter3Ending() {
                         }, 4000);
                     });
                 } else {
-                    // Dự phòng nếu không tìm thấy thẻ tbc-highlight thì vẫn chạy tiếp Outro
                     runFinalOutro();
                 }
             }, 500);
         });
     }, 1000);
 }
+
 // ==========================================
 // 7. OUTRO TOÀN PHIM (MOVIE CREDITS)
 // ==========================================

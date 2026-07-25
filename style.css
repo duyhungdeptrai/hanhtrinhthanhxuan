@@ -15,7 +15,7 @@ body {
     background-color: #000;
     
     /* Background ban đầu */
-    background-image: url("assets/images/background.jpg");
+    background-image: url("images/background.jpg");
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -27,19 +27,19 @@ body {
 
 /* Các Class đổi background theo tiến trình */
 body.bg-movie {
-    background-image: url("assets/images/background1.jpg") !important;
+    background-image: url("images/background1.jpg") !important;
 }
 
 body.bg-chapter1 {
-    background-image: url("assets/images/background2.jpg") !important;
+    background-image: url("images/background2.jpg") !important;
 }
 
 body.bg-chapter2 {
-    background-image: url("assets/images/chapter2.jpg") !important;
+    background-image: url("images/chapter2.jpg") !important;
 }
 
 body.bg-chapter3 {
-    background-image: url("assets/images/chapter3.jpg") !important;
+    background-image: url("images/chapter3.jpg") !important;
 }
 
 body::before {
@@ -394,15 +394,11 @@ body::after {
     TYPEWRITER TEXT ON VIDEO
 =========================== */
 
-/* ===========================
-    TYPEWRITER TEXT ON VIDEO
-=========================== */
-
 .typewriter-text {
     position: fixed;
     z-index: 95;
     font-family: 'Cinzel', serif;
-    font-size: 24px; /* Giảm nhẹ font-size cho gọn gàng */
+    font-size: 24px;
     font-weight: 600;
     color: #fce8ad;
     
@@ -411,7 +407,7 @@ body::after {
         0 0 10px rgba(252, 232, 173, 0.4);
 
     pointer-events: none;
-    max-width: 260px; /* Thu hẹp chiều rộng để chữ dồn thành 2-3 dòng ngắn */
+    max-width: 260px;
     line-height: 1.5;
     letter-spacing: 1px;
 }
@@ -419,14 +415,14 @@ body::after {
 /* CÂU TRÊN - NẰM HOÀN TOÀN TRONG MÀN ĐEN BÊN TRÁI */
 .top-left {
     top: 15%;
-    left: 20px; /* Cố định cách mép trái màn hình 20px, nằm trọn trong vùng đen */
+    left: 20px;
     text-align: left;
 }
 
 /* CÂU DƯỚI - NẰM HOÀN TOÀN TRONG MÀN ĐEN BÊN PHẢI */
 .bottom-right {
     bottom: 15%;
-    right: 20px; /* Cố định cách mép phải màn hình 20px, nằm trọn trong vùng đen */
+    right: 20px;
     text-align: right;
 }
 
@@ -515,38 +511,29 @@ body::after {
     opacity: 1;
     pointer-events: auto;
 }
-.tbc-highlight {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #ffeb3b; /* Màu vàng nổi bật hoặc đổi tùy thích */
-    letter-spacing: 3px;
-    margin-top: 20px;
-    opacity: 0;
-    transition: opacity 1.5s ease-in-out;
-    text-shadow: 0 0 10px rgba(255, 235, 59, 0.6);
-}
 
 /* Khung hiển thị câu nói chính (nằm giữa) */
 .outro-screen {
-    position: relative; /* Đảm bảo góc dưới phải ăn theo khung hình */
+    position: relative;
 }
 
 /* Chữ "To be continued..." ở góc dưới bên phải */
 .tbc-highlight {
     position: absolute;
-    bottom: 40px;          /* Cách đáy 40px */
-    right: 50px;           /* Cách lề phải 50px */
+    bottom: 40px;
+    right: 50px;
     font-size: 1.8rem;
     font-weight: 600;
     font-style: italic;
-    color: #ffeb3b;        /* Màu vàng ấm áp nổi bật */
+    color: #ffeb3b;
     letter-spacing: 2px;
     margin: 0;
-    opacity: 1;            /* Hiệu ứng gõ chữ typewriter sẽ tự làm hiện dần */
+    opacity: 1;
     text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
     z-index: 10;
 }
-/* Container màn hình đen bao trùm */
+
+/* Container màn hình đen bao trùm MOVIE CREDITS */
 .credits-container {
     position: fixed;
     top: 0;
@@ -556,9 +543,9 @@ body::after {
     background-color: #000;
     z-index: 9999;
     overflow: hidden;
-    opacity: 0; /* Mặc định ẩn hoàn toàn */
+    opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease; /* Hiện mượt mà, tránh nháy */
+    transition: opacity 0.5s ease;
 }
 
 /* Khi kích hoạt hiện màn hình credits */
@@ -571,12 +558,12 @@ body::after {
 .credits-content {
     position: absolute;
     width: 100%;
-    top: 100vh; /* Nằm ngay dưới mép đáy màn hình */
+    top: 100vh;
     left: 0;
     text-align: center;
     color: #fff;
     font-family: 'Cinzel', serif;
-    will-change: transform; /* Tối ưu hóa mượt hơn */
+    will-change: transform;
 }
 
 /* Kích hoạt trôi chữ */
@@ -590,8 +577,6 @@ body::after {
         transform: translateY(0);
     }
     100% {
-        /* -100% (chiều cao toàn bộ chữ) - 100vh (chiều cao màn hình) 
-           đảm bảo dòng chữ cuối cùng trôi sạch khỏi mép trên, để lại màn hình hoàn toàn đen */
         transform: translateY(calc(-100% - 100vh));
     }
 }
