@@ -14,15 +14,15 @@ body {
     height: 100vh;
     background-color: #000;
     
-    /* Background ban đầu */
     background-image: url("images/background.jpg");
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
 
-    /* Chuyển đổi nền mượt mà */
     transition: background-image 1.2s ease-in-out;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Các Class đổi background theo tiến trình */
@@ -52,6 +52,43 @@ body::before {
 }
 
 /* ===========================
+    CẢNH BÁO XOAY MÀN HÌNH (DỌC -> NGANG)
+=========================== */
+#rotate-warning {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 99999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    color: #fce8ad;
+    font-family: 'Inter', sans-serif;
+}
+
+#rotate-warning .phone-icon {
+    font-size: 50px;
+    margin-bottom: 15px;
+    animation: rotatePhone 2s infinite ease-in-out;
+}
+
+@keyframes rotatePhone {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Khi xoay máy dọc trên thiết bị di động thì hiện cảnh báo */
+@media screen and (max-width: 900px) and (orientation: portrait) {
+    #rotate-warning {
+        display: flex;
+    }
+}
+
+/* ===========================
         SCREEN 1 (INTRO)
 =========================== */
 
@@ -59,11 +96,12 @@ body::before {
     text-align: center;
     animation: fadeIn 1.6s ease;
     transition: opacity 1s ease;
+    padding: 0 20px;
 }
 
 h1 {
     font-family: "Cinzel", serif;
-    font-size: 64px;
+    font-size: min(8vw, 64px);
     font-weight: 500;
     letter-spacing: 3px;
     text-shadow: 0 0 8px rgba(255, 255, 255, .08);
@@ -71,8 +109,8 @@ h1 {
 }
 
 .quote {
-    margin-top: 28px;
-    font-size: 18px;
+    margin-top: 20px;
+    font-size: min(3.5vw, 18px);
     font-style: italic;
     color: #d2d2d2;
     font-family: 'Inter', sans-serif;
@@ -80,8 +118,8 @@ h1 {
 }
 
 .enter {
-    margin-top: 140px;
-    font-size: 17px;
+    margin-top: min(15vw, 100px);
+    font-size: min(3.2vw, 17px);
     color: #8d8d8d;
     letter-spacing: 2px;
     font-family: 'Inter', sans-serif;
@@ -159,7 +197,7 @@ h1 {
     background-color: #5a5a5a;
     color: white;
     font-family: "Cinzel", serif;
-    font-size: 180px;
+    font-size: min(25vw, 180px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -220,7 +258,7 @@ h1 {
 
 #opening h2 {
     font-family: "Cinzel", serif;
-    font-size: 70px;
+    font-size: min(8vw, 70px);
     font-weight: 700;
     letter-spacing: 5px;
     color: #f5f5f5;
@@ -260,6 +298,7 @@ h1 {
     transition: opacity 1.2s ease;
     z-index: 80;
     text-align: center;
+    padding: 0 20px;
 }
 
 #chapter1.show {
@@ -269,7 +308,7 @@ h1 {
 
 #chapter1 h3 {
     font-family: 'Inter', sans-serif;
-    font-size: 18px;
+    font-size: min(3vw, 18px);
     letter-spacing: 6px;
     color: #d5d5d5;
     margin-bottom: 18px;
@@ -278,7 +317,7 @@ h1 {
 
 #chapter1 h1 {
     font-family: "Cinzel", serif;
-    font-size: 62px;
+    font-size: min(8vw, 62px);
     font-weight: 700;
     color: #f5f5f5;
     text-align: center;
@@ -298,7 +337,7 @@ h1 {
 #chapter1 p {
     margin-top: 22px;
     font-family: 'Inter', sans-serif;
-    font-size: 18px;
+    font-size: min(3vw, 18px);
     color: #c5c5c5;
     text-align: center;
 }
@@ -329,7 +368,7 @@ h1 {
 
 #chapter3 h2 {
     font-family: 'Cinzel', serif;
-    font-size: 24px;
+    font-size: min(4vw, 24px);
     letter-spacing: 10px;
     color: #fce8ad;
     margin-bottom: 10px;
@@ -339,7 +378,7 @@ h1 {
 
 #chapter3 h1 {
     font-family: 'Cinzel', serif;
-    font-size: 56px;
+    font-size: min(7vw, 56px);
     letter-spacing: 8px;
     color: #fff;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
@@ -398,7 +437,7 @@ body::after {
     position: fixed;
     z-index: 95;
     font-family: 'Cinzel', serif;
-    font-size: 24px;
+    font-size: min(3.5vw, 24px);
     font-weight: 600;
     color: #fce8ad;
     
@@ -407,22 +446,20 @@ body::after {
         0 0 10px rgba(252, 232, 173, 0.4);
 
     pointer-events: none;
-    max-width: 260px;
+    max-width: 40vw;
     line-height: 1.5;
     letter-spacing: 1px;
 }
 
-/* CÂU TRÊN - NẰM HOÀN TOÀN TRONG MÀN ĐEN BÊN TRÁI */
 .top-left {
-    top: 15%;
-    left: 20px;
+    top: 12%;
+    left: 25px;
     text-align: left;
 }
 
-/* CÂU DƯỚI - NẰM HOÀN TOÀN TRONG MÀN ĐEN BÊN PHẢI */
 .bottom-right {
-    bottom: 15%;
-    right: 20px;
+    bottom: 12%;
+    right: 25px;
     text-align: right;
 }
 
@@ -469,10 +506,10 @@ body::after {
 
 #outro-text {
     font-family: 'Cinzel', serif;
-    font-size: 28px;
+    font-size: min(4vw, 28px);
     font-weight: 500;
     color: #fce8ad;
-    max-width: 700px;
+    max-width: 85vw;
     text-align: center;
     line-height: 1.6;
     padding: 0 20px;
@@ -512,17 +549,11 @@ body::after {
     pointer-events: auto;
 }
 
-/* Khung hiển thị câu nói chính (nằm giữa) */
-.outro-screen {
-    position: relative;
-}
-
-/* Chữ "To be continued..." ở góc dưới bên phải */
 .tbc-highlight {
     position: absolute;
-    bottom: 40px;
-    right: 50px;
-    font-size: 1.8rem;
+    bottom: 30px;
+    right: 35px;
+    font-size: min(3.5vw, 1.8rem);
     font-weight: 600;
     font-style: italic;
     color: #ffeb3b;
@@ -533,7 +564,10 @@ body::after {
     z-index: 10;
 }
 
-/* Container màn hình đen bao trùm MOVIE CREDITS */
+/* ===========================
+        MOVIE CREDITS
+=========================== */
+
 .credits-container {
     position: fixed;
     top: 0;
@@ -548,13 +582,11 @@ body::after {
     transition: opacity 0.5s ease;
 }
 
-/* Khi kích hoạt hiện màn hình credits */
 .credits-container.show {
     opacity: 1;
     pointer-events: auto;
 }
 
-/* Khối nội dung chữ - Mặc định giấu tít xuống dưới màn hình */
 .credits-content {
     position: absolute;
     width: 100%;
@@ -566,12 +598,10 @@ body::after {
     will-change: transform;
 }
 
-/* Kích hoạt trôi chữ */
 .credits-container.start .credits-content {
     animation: rollCredits 22s linear forwards;
 }
 
-/* KEYFRAMES: Trôi từ đáy lên hẳn đỉnh màn hình */
 @keyframes rollCredits {
     0% {
         transform: translateY(0);
@@ -581,36 +611,35 @@ body::after {
     }
 }
 
-/* Kiểu chữ chuẩn danh xưng phim */
 .credits-title {
-    font-size: 2.2rem;
+    font-size: min(5vw, 2.2rem);
     letter-spacing: 3px;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
     font-weight: bold;
     color: #ffffff;
 }
 
 .credits-group {
-    margin-bottom: 35px;
+    margin-bottom: 25px;
 }
 
 .credits-role {
-    font-size: 1.2rem;
+    font-size: min(3vw, 1.2rem);
     font-weight: bold;
     color: #ffffff;
     margin-bottom: 5px;
 }
 
 .credits-name {
-    font-size: 1.15rem;
+    font-size: min(2.8vw, 1.15rem);
     color: #dddddd;
     margin: 0;
     letter-spacing: 1px;
 }
 
 .credits-end {
-    margin-top: 60px;
-    font-size: 1.8rem;
+    margin-top: 50px;
+    font-size: min(4vw, 1.8rem);
     letter-spacing: 5px;
     font-weight: bold;
     color: #ffeb3b;

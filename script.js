@@ -30,13 +30,22 @@ const bgm3 = document.getElementById("bgm3");
 let started = false;
 
 // ==========================================
-// 1. SỰ KIỆN LẮNG NGHE PHÍM ENTER
+// 1. CHUYỂN SỰ KIỆN: Bấm Enter -> Chạm Màn Hình (Cho Điện Thoại)
 // ==========================================
-window.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" || started) return;
+function startExperience() {
+    if (started) return;
     started = true;
 
-    // Unlock audio loop trên trình duyệt
+    // Yêu cầu Toàn màn hình & Khóa màn hình xoay ngang (Nếu trình duyệt Android hỗ trợ)
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().then(() => {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock("landscape").catch(() => {});
+            }
+        }).catch(() => {});
+    }
+
+    // Unlock audio loop trên trình duyệt mobile
     if (projectorLoop) {
         projectorLoop.play().then(() => {
             projectorLoop.pause();
@@ -65,14 +74,12 @@ window.addEventListener("keydown", (e) => {
             if (i < numbers.length) {
                 if (countNumber) countNumber.textContent = numbers[i];
 
-                // --- ĐẾM ĐẾN "2" -> CHUYỂN SANG BACKGROUND1.JPG ---
                 if (numbers[i] === "2") {
                     document.body.classList.add("bg-movie");
                 }
             } else {
                 clearInterval(timer);
 
-                // --- HẾT COUNTDOWN (Vẫn giữ background1.jpg) ---
                 setTimeout(() => {
                     if (countdown) countdown.classList.remove("show");
 
@@ -86,7 +93,6 @@ window.addEventListener("keydown", (e) => {
                                     projectorLoop.play().catch(e => console.log("Lỗi loop:", e));
                                 }
 
-                                // Fade in "HÀNH TRÌNH THANH XUÂN" trên nền background1.jpg
                                 if (opening) {
                                     opening.classList.remove("hide");
                                     opening.classList.add("show");
@@ -99,12 +105,10 @@ window.addEventListener("keydown", (e) => {
                                     }
 
                                     setTimeout(() => {
-                                        // --- CHUYỂN SANG BACKGROUND2.JPG VÀ HIỆN CHAPTER 1 ---
                                         document.body.classList.remove("bg-movie");
                                         document.body.classList.add("bg-chapter1");
 
                                         setTimeout(() => {
-                                            // Fade in "CHAPTER 1" trên nền background2.jpg
                                             if (chapter1) {
                                                 chapter1.classList.remove("hide");
                                                 chapter1.classList.add("show");
@@ -116,18 +120,16 @@ window.addEventListener("keydown", (e) => {
                                                     chapter1.classList.add("hide");
                                                 }
 
-                                                // Bắt đầu phát Video 1
                                                 setTimeout(() => {
                                                     playVideo1();
                                                 }, 1000);
 
-                                            }, 2000); // Giữ Chapter 1 trong 2s
+                                            }, 2000);
                                         }, 500);
                                     }, 300);
                                 }, 2000);
                             };
                         } else {
-                            // Nếu không có projectorStart thì vào thẳng playVideo1
                             playVideo1();
                         }
                     }, 500);
@@ -135,7 +137,14 @@ window.addEventListener("keydown", (e) => {
             }
         }, 800);
     }, 1200);
+}
+
+// Bắt cả phím Enter (máy tính) VÀ thao tác chạm (điện thoại)
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") startExperience();
 });
+window.addEventListener("click", startExperience);
+window.addEventListener("touchstart", startExperience);
 
 // ==========================================
 // 2. PHÁT VIDEO 1 & SLIDE ẢNH
@@ -172,7 +181,6 @@ function playVideo1() {
             if (elLeft) elLeft.textContent = "";
             if (elRight) elRight.textContent = "";
 
-            // Trình chiếu Slide Ảnh
             if (imageViewer) {
                 imageViewer.src = "images/image1.jpg";
                 imageViewer.classList.add("show");
@@ -186,7 +194,6 @@ function playVideo1() {
                 if (imageViewer) imageViewer.classList.remove("show");
             }, 12000);
 
-            // Phát tiếp Video 2
             setTimeout(() => {
                 playVideo2();
             }, 12000);
@@ -211,7 +218,6 @@ function playVideo2() {
         const outroText = document.getElementById("outro-text");
         const quoteContent = "Và thế là, những mảnh ký ức đẹp nhất của Thanh Xuân đã được lưu giữ lại mãi mãi...";
 
-        // 1. Hiện màn đen Outro
         setTimeout(() => {
             if (outroScreen) outroScreen.classList.add("show");
 
@@ -336,9 +342,6 @@ function playMutedVideo(videoEl, onEndedCallback) {
     };
 }
 
-// ==========================================
-// FIX MƯỢT NHẠC BGM2 TRONG RUNCHAPTER2OUTRO
-// ==========================================
 function runChapter2Outro() {
     const outroScreen = document.getElementById("outro-screen");
     const outroText = document.getElementById("outro-text");
@@ -356,25 +359,22 @@ function runChapter2Outro() {
             setTimeout(() => {
                 if (outroScreen) outroScreen.classList.remove("show");
                 
-                // 1. Giảm âm lượng bgm2 về 0 từ từ trong 2000ms (2 giây)
                 if (bgm2) fadeAudio(bgm2, 0, 2000);
 
-                // 2. Chuyển background sang Chapter 3
                 document.body.classList.remove("bg-chapter2");
                 document.body.classList.add("bg-chapter3");
 
-                // 3. Đợi đúng 2.1 giây cho nhạc nhỏ hẳn rồi mới pause và sang Chapter 3
                 setTimeout(() => {
                     if (outroText) outroText.textContent = "";
                     if (bgm2) {
-                        bgm2.pause(); // Dừng hẳn khi âm lượng đã về 0
-                        bgm2.currentTime = 0; // Reset về đầu bài
+                        bgm2.pause();
+                        bgm2.currentTime = 0;
                     }
                     
-                    startChapter3(); // Bắt đầu Chapter 3 (Bật bgm3)
+                    startChapter3();
                 }, 2100);
 
-            }, 5000); // Đợi 5s cho người xem đọc xong câu quote
+            }, 5000);
         });
     }, 1000);
 }
@@ -473,9 +473,6 @@ function typeWriter(element, text, speed, callback) {
 // 6. LOGIC CHAPTER 3
 // ==========================================
 function startChapter3() {
-    console.log("Bắt đầu Chapter 3!");
-
-    // Bật nhạc bgm3 tăng âm lượng mượt mà
     if (bgm3) {
         bgm3.volume = 0;
         bgm3.play().then(() => {
@@ -495,7 +492,7 @@ function startChapter3() {
 
                 setTimeout(() => {
                     ch3.style.visibility = "hidden";
-                    runChapter3Content(); // Chạy nội dung chính Chap 3
+                    runChapter3Content();
                 }, 1500);
 
             }, 3500); 
@@ -510,7 +507,6 @@ function runChapter3Content() {
     const outroScreen = document.getElementById("outro-screen");
     const outroText = document.getElementById("outro-text");
     
-    // Câu nói 1: Sau Intro Chapter 3
     const quote1 = "Cảm ơn em vì đã xuất hiện và cùng anh tạo nên những ký ức tuyệt vời nhất...";
 
     if (outroText) {
@@ -518,22 +514,19 @@ function runChapter3Content() {
         outroText.classList.remove("done");
     }
 
-    // 1. Hiện câu nói 1
     if (outroScreen) outroScreen.classList.add("show");
 
     setTimeout(() => {
         typeWriter(outroText, quote1, 75, () => {
             setTimeout(() => {
-                // Tắt câu nói 1
                 if (outroScreen) outroScreen.classList.remove("show");
 
-                // 2. Phát Video 7 (Video đời thường)
                 setTimeout(() => {
                     if (outroText) outroText.textContent = "";
                     playVideo7();
                 }, 1200);
 
-            }, 4000); // Đợi 4s để đọc câu nói 1
+            }, 4000);
         });
     }, 1000);
 }
@@ -544,34 +537,24 @@ function playVideo7() {
         return;
     }
 
-    // 1. Reset video & set âm lượng ban đầu
     video7.currentTime = 0;
-    video7.volume = 0; // Để 0 để fade audio lên cho mượt
-    
-    // 2. Hiện video (Fade-in)
+    video7.volume = 0;
     video7.classList.add("show");
     
     video7.play().then(() => {
-        // Tăng âm lượng video mượt từ 0 -> 0.4 trong 1.5s
         fadeAudio(video7, 0.4, 1500);
     }).catch(err => console.error("Lỗi phát video7:", err));
 
-    // 3. Xử lý khi video gần kết thúc (Fade-out trước khi tắt)
     video7.ontimeupdate = () => {
-        // Khi video còn đúng 1.5s nữa là hết -> Bắt đầu Fade-out dần
         if (video7.duration - video7.currentTime <= 1.5 && !video7.isFadingOut) {
             video7.isFadingOut = true;
-            
-            // Fade-out hình ảnh và âm lượng video
-            video7.classList.remove("show"); // Mờ dần hình
-            fadeAudio(video7, 0, 1200);      // Nhỏ dần tiếng
+            video7.classList.remove("show");
+            fadeAudio(video7, 0, 1200);
         }
     };
 
-    // 4. Kết thúc hẳn -> Chuyển sang câu nói 2 + To be continued
     video7.onended = () => {
-        video7.isFadingOut = false; // Reset cờ
-        
+        video7.isFadingOut = false;
         setTimeout(() => {
             runChapter3Ending();
         }, 800);
@@ -581,13 +564,11 @@ function playVideo7() {
 function runChapter3Ending() {
     const outroScreen = document.getElementById("outro-screen");
     const outroText = document.getElementById("outro-text");
-    
     const tbcHighlight = document.getElementById("tbc-highlight");
 
     const quote2 = "Hy vọng sau này chúng ta vẫn luôn cùng nhau bước tiếp trên những hành trình phía trước...";
     const tbcText = "To be continued...";
 
-    // Reset lại nội dung các khung chữ
     if (outroText) {
         outroText.textContent = "";
         outroText.classList.remove("done");
@@ -596,7 +577,6 @@ function runChapter3Ending() {
         tbcHighlight.textContent = "";
     }
 
-    // Chuyển sang nền đen
     document.body.classList.remove("bg-chapter3");
     document.body.classList.remove("bg-movie");
 
@@ -614,7 +594,6 @@ function runChapter3Ending() {
                                 if (bgm3) bgm3.pause();
                                 if (outroScreen) outroScreen.classList.remove("show");
 
-                                // BẮT ĐẦU CHẠY MOVIE CREDITS
                                 runFinalOutro();
 
                             }, 3200);
@@ -633,15 +612,10 @@ function runChapter3Ending() {
 // 7. OUTRO TOÀN PHIM (MOVIE CREDITS)
 // ==========================================
 function runFinalOutro() {
-    console.log("Bắt đầu Outro toàn phim Duy Hùng!");
-
     const creditsScreen = document.getElementById("credits-screen");
 
     if (creditsScreen) {
-        // 1. Hiện màn hình đen từ từ
         creditsScreen.classList.add("show");
-
-        // 2. Chờ 600ms (cho màn đen mờ ra hoàn chỉnh) rồi mới bắt đầu trôi chữ
         setTimeout(() => {
             creditsScreen.classList.add("start");
         }, 600);

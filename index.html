@@ -2,7 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Thêm viewport chuẩn chống zoom lỗi giao diện trên mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hành Trình Thanh Xuân</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,10 +14,16 @@
 </head>
 <body>
 
+    <!-- Khung cảnh báo bắt buộc xoay ngang trên điện thoại -->
+    <div id="rotate-warning">
+        <div class="phone-icon">📱🔄</div>
+        <p>Vui lòng xoay ngang điện thoại để có trải nghiệm xem phim tốt nhất!</p>
+    </div>
+
     <div id="screen1">
         <h1>Hành Trình Thanh Xuân</h1>
         <p class="quote">Some memories deserve to become a movie.</p>
-        <p class="enter">Press ENTER</p>
+        <p class="enter">CHẠM VÀO MÀN HÌNH ĐỂ BẮT ĐẦU</p>
     </div>
 
     <div id="curtain">
@@ -68,7 +75,6 @@
         <source src="videos/video6.mp4" type="video/mp4">
     </video>
 
-    <!-- Màn hình hiện Quote & chữ To Be Continued của Chap 3 -->
     <div id="outro-screen">
         <p id="outro-text"></p>
         <p id="tbc-highlight" class="tbc-highlight"></p>
@@ -82,13 +88,11 @@
         </div>
     </div>
 
-    <!-- TIÊU ĐỀ CHAPTER 3 -->
     <div id="chapter3" class="chapter-title">
         <h2>CHAPTER 03</h2>
         <h1>PRESENT AND FUTURE</h1>
     </div>
 
-    <!-- Video 7 -->
     <video id="video7" src="videos/video7.mp4" playsinline></video>
 
     <img id="imageViewer" src="" alt="">
@@ -103,7 +107,6 @@
     </audio>
     <audio id="bgm3" src="audio/bgm3.mp3" loop preload="auto"></audio>
 
-    <!-- KHU VỰC MOVIE CREDITS (OUTRO TOÀN PHIM) -->
     <div id="credits-screen" class="credits-container">
         <div class="credits-content">
             <h1 class="credits-title">"THANH XUÂN RỰC RỠ"</h1>
