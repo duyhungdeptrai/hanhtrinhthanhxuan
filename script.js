@@ -1,7 +1,7 @@
 // Preload trước các hình nền
 new Image().src = "images/background1.jpg";
 new Image().src = "images/background2.jpg";
-new Image().src = "images/chapter2.jpg";
+new Image().src = "images/background2.jpg"; // chapter2 background
 
 const screen1 = document.getElementById("screen1");
 const curtain = document.getElementById("curtain");
@@ -30,40 +30,61 @@ const bgm3 = document.getElementById("bgm3");
 let started = false;
 
 // ==========================================
-// HÀM MỒI (UNLOCK) ÂM THANH & VIDEO CHO MOBILE
+// 1. TẠO HÀM UNLOCK AUDIO ĐÚNG CHUẨN MOBILE
 // ==========================================
+let audioCtx = null;
+
 function unlockMobileMedia() {
-    const allAudios = [projectorStart, projectorLoop, bgm, bgm2, bgm3];
-    const allVideos = [video1, video2, video3, video4, video5, video6, video7];
-
-    allAudios.forEach(a => {
-        if (a) {
-            a.play().then(() => {
-                a.pause();
-                a.currentTime = 0;
-            }).catch(() => {});
+    // Tạo hoặc khôi phục Web Audio Context để mở khóa cổng âm thanh hệ thống
+    if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+            audioCtx = new AudioContext();
         }
-    });
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
 
-    allVideos.forEach(v => {
-        if (v) {
-            v.play().then(() => {
-                v.pause();
-                v.currentTime = 0;
-            }).catch(() => {});
+    // Trên Mobile chỉ kích hoạt BGM đầu tiên & Video 1 ngay tại thời điểm chạm
+    if (projectorStart) {
+        projectorStart.play().then(() => {
+            projectorStart.pause();
+            projectorStart.currentTime = 0;
+        }).catch(() => {});
+    }
+}
+
+// Hàm hạ âm lượng an toàn (hỗ trợ cả iOS)
+function safePause(audio) {
+    if (!audio) return;
+    try {
+        audio.pause();
+    } catch(e) {}
+}
+
+function safePlay(audio, volume = 1.0) {
+    if (!audio) return;
+    try {
+        audio.volume = volume;
+        const p = audio.play();
+        if (p !== undefined) {
+            p.catch(err => console.log("Autoplay blocked:", err));
         }
-    });
+    } catch(e) {}
 }
 
 // ==========================================
-// 1. CHẠM MÀN HÌNH BẮT ĐẦU
+// 2. CHẠM MÀN HÌNH BẮT ĐẦU
 // ==========================================
 function startExperience() {
     if (started) return;
     started = true;
 
+    // Bắt buộc unlock ngay tại cử chỉ chạm đầu tiên
     unlockMobileMedia();
 
+    // Toàn màn hình
     if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().then(() => {
             if (screen.orientation && screen.orientation.lock) {
@@ -101,12 +122,11 @@ function startExperience() {
 
                     setTimeout(() => {
                         if (projectorStart) {
-                            projectorStart.play().catch(() => playVideo1());
+                            safePlay(projectorStart);
 
                             projectorStart.onended = () => {
                                 if (projectorLoop) {
-                                    projectorLoop.volume = 1;
-                                    projectorLoop.play().catch(() => {});
+                                    safePlay(projectorLoop);
                                 }
 
                                 if (opening) {
@@ -121,7 +141,7 @@ function startExperience() {
                                     }
 
                                     setTimeout(() => {
-                                        document.body.classList.remove("bg-chapter1");
+                                        document.body.classList.remove("bg-movie");
                                         document.body.classList.add("bg-chapter1");
 
                                         setTimeout(() => {
@@ -159,33 +179,31 @@ window.addEventListener("keydown", (e) => {
     if (e.key === "Enter") startExperience();
 });
 window.addEventListener("click", startExperience);
-window.addEventListener("touchstart", startExperience);
+window.addEventListener("touchstart", startExperience, { passive: true });
 
 // ==========================================
-// 2. PHÁT VIDEO 1 & SLIDE ẢNH
+// 3. PHÁT VIDEO 1 & SLIDE ẢNH
 // ==========================================
 function playVideo1() {
-    if (projectorLoop) fadeAudio(projectorLoop, 0, 1500);
+    safePause(projectorLoop);
     
     if (bgm) {
-        bgm.volume = 0;
-        bgm.play().then(() => {
-            fadeAudio(bgm, 1, 2000);
-        }).catch(e => console.log("Lỗi bgm:", e));
+        safePlay(bgm, 1.0);
     }
 
     setTimeout(() => {
-        if (projectorLoop) {
-            projectorLoop.pause();
-            projectorLoop.currentTime = 0;
-        }
-
         if (video1) {
             video1.classList.add("show");
             video1.muted = false;
-            video1.play().catch(err => {
-                console.log("Lỗi play video1:", err);
-            });
+            
+            const p = video1.play();
+            if (p !== undefined) {
+                p.catch(() => {
+                    // Nếu mobile vẫn chặn tiếng video1 -> bật muted để video tiếp tục chạy không bị kẹt
+                    video1.muted = true;
+                    video1.play();
+                });
+            }
             startTypewriterEffect();
         }
     }, 1200);
@@ -219,14 +237,21 @@ function playVideo1() {
 }
 
 // ==========================================
-// 3. PHÁT VIDEO 2 & CHUYỂN CHAPTER 1 -> 2
+// 4. PHÁT VIDEO 2 & CHUYỂN CHAPTER 1 -> 2
 // ==========================================
 function playVideo2() {
     if (!video2) return;
     video2.currentTime = 0;
     video2.classList.add("show");
     video2.muted = false;
-    video2.play().catch(() => {});
+
+    const p = video2.play();
+    if (p !== undefined) {
+        p.catch(() => {
+            video2.muted = true;
+            video2.play();
+        });
+    }
 
     video2.onended = () => {
         video2.classList.remove("show");
@@ -245,16 +270,11 @@ function playVideo2() {
 
                     typeWriter(outroText, quoteContent, 70, () => {
                         setTimeout(() => {
-                            if (bgm) fadeAudio(bgm, 0, 2500);
+                            safePause(bgm);
 
                             setTimeout(() => {
-                                if (bgm) bgm.pause();
-
                                 if (bgm2) {
-                                    bgm2.volume = 0;
-                                    bgm2.play().then(() => {
-                                        fadeAudio(bgm2, 1.0, 2000);
-                                    }).catch(e => console.log("Lỗi phát bgm2:", e));
+                                    safePlay(bgm2, 1.0);
                                 }
 
                                 if (outroScreen) outroScreen.classList.remove("show");
@@ -266,8 +286,8 @@ function playVideo2() {
                                     startChapter2();
                                 }, 1500);
 
-                            }, 2600);
-                        }, 5000);
+                            }, 1000);
+                        }, 4000);
                     });
                 }
             }, 1000);
@@ -276,7 +296,7 @@ function playVideo2() {
 }
 
 // ==========================================
-// 4. LOGIC CHAPTER 2
+// 5. LOGIC CHAPTER 2
 // ==========================================
 function startChapter2() {
     const chapter2Screen = document.getElementById("chapter2-screen");
@@ -347,11 +367,9 @@ function playMutedVideo(videoEl, onEndedCallback) {
     }
     videoEl.currentTime = 0;
     videoEl.classList.add("show");
-    videoEl.muted = true;
-    videoEl.play().then(() => {}).catch(err => {
-        console.error("Lỗi phát video Chapter 2:", err);
-        if (onEndedCallback) onEndedCallback();
-    });
+    videoEl.muted = true; 
+    
+    videoEl.play().catch(() => {});
 
     videoEl.onended = () => {
         videoEl.classList.remove("show");
@@ -376,44 +394,24 @@ function runChapter2Outro() {
             setTimeout(() => {
                 if (outroScreen) outroScreen.classList.remove("show");
                 
-                if (bgm2) fadeAudio(bgm2, 0, 2000);
+                safePause(bgm2);
 
                 document.body.classList.remove("bg-chapter2");
                 document.body.classList.add("bg-chapter3");
 
                 setTimeout(() => {
                     if (outroText) outroText.textContent = "";
-                    if (bgm2) {
-                        bgm2.pause();
-                        bgm2.currentTime = 0;
-                    }
-                    
                     startChapter3();
-                }, 2100);
+                }, 1500);
 
-            }, 5000);
+            }, 4000);
         });
     }, 1000);
 }
 
 // ==========================================
-// 5. UTILITIES
+// 6. UTILITIES
 // ==========================================
-function fadeAudio(audio, targetVolume, duration) {
-    if (!audio) return;
-    const startVolume = audio.volume;
-    const startTime = performance.now();
-
-    function update(now) {
-        const progress = Math.min((now - startTime) / duration, 1);
-        audio.volume = startVolume + (targetVolume - startVolume) * progress;
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
-    }
-    requestAnimationFrame(update);
-}
-
 function changeImage(src) {
     if (!imageViewer) return;
     imageViewer.classList.remove("show");
@@ -487,14 +485,11 @@ function typeWriter(element, text, speed, callback) {
 }
 
 // ==========================================
-// 6. LOGIC CHAPTER 3
+// 7. LOGIC CHAPTER 3
 // ==========================================
 function startChapter3() {
     if (bgm3) {
-        bgm3.volume = 0;
-        bgm3.play().then(() => {
-            fadeAudio(bgm3, 1.0, 2500);
-        }).catch(e => console.log("Lỗi phát bgm3:", e));
+        safePlay(bgm3, 1.0);
     }
 
     const ch3 = document.getElementById("chapter3");
@@ -558,7 +553,7 @@ function playVideo7() {
     video7.muted = true;
     video7.classList.add("show");
     
-    video7.play().then(() => {}).catch(err => console.error("Lỗi phát video7:", err));
+    video7.play().catch(() => {});
 
     video7.ontimeupdate = () => {
         if (video7.duration - video7.currentTime <= 1.5 && !video7.isFadingOut) {
@@ -602,17 +597,14 @@ function runChapter3Ending() {
                 if (tbcHighlight) {
                     typeWriter(tbcHighlight, tbcText, 85, () => {
                         setTimeout(() => {
-                            if (bgm3) fadeAudio(bgm3, 0, 3000);
+                            safePause(bgm3);
 
                             setTimeout(() => {
-                                if (bgm3) bgm3.pause();
                                 if (outroScreen) outroScreen.classList.remove("show");
-
                                 runFinalOutro();
+                            }, 1000);
 
-                            }, 3200);
-
-                        }, 4000);
+                        }, 3000);
                     });
                 } else {
                     runFinalOutro();
@@ -623,7 +615,7 @@ function runChapter3Ending() {
 }
 
 // ==========================================
-// 7. MOVIE CREDITS
+// 8. MOVIE CREDITS
 // ==========================================
 function runFinalOutro() {
     const creditsScreen = document.getElementById("credits-screen");
