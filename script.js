@@ -12,7 +12,7 @@ const video1 = document.getElementById("video1");
 const video2 = document.getElementById("video2");
 const imageViewer = document.getElementById("imageViewer");
 
-// Elements Video Chapter 2
+// Elements Video Chapter 2 & 3
 const video3 = document.getElementById("video3");
 const video4 = document.getElementById("video4");
 const video5 = document.getElementById("video5");
@@ -30,27 +30,50 @@ const bgm3 = document.getElementById("bgm3");
 let started = false;
 
 // ==========================================
-// 1. CHUYỂN SỰ KIỆN: Bấm Enter -> Chạm Màn Hình (Cho Điện Thoại)
+// HÀM MỒI (UNLOCK) ÂM THANH & VIDEO CHO MOBILE
+// ==========================================
+function unlockMobileMedia() {
+    const allAudios = [projectorStart, projectorLoop, bgm, bgm2, bgm3];
+    const allVideos = [video1, video2, video3, video4, video5, video6, video7];
+
+    // Unlock tất cả nhạc
+    allAudios.forEach(a => {
+        if (a) {
+            a.play().then(() => {
+                a.pause();
+                a.currentTime = 0;
+            }).catch(() => {});
+        }
+    });
+
+    // Unlock tất cả video
+    allVideos.forEach(v => {
+        if (v) {
+            v.play().then(() => {
+                v.pause();
+                v.currentTime = 0;
+            }).catch(() => {});
+        }
+    });
+}
+
+// ==========================================
+// 1. CHẠM MÀN HÌNH BẮT ĐẦU
 // ==========================================
 function startExperience() {
     if (started) return;
     started = true;
 
-    // Yêu cầu Toàn màn hình & Khóa màn hình xoay ngang (Nếu trình duyệt Android hỗ trợ)
+    // Giải phóng chính sách Autoplay của Mobile ngay lập tức
+    unlockMobileMedia();
+
+    // Toàn màn hình
     if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().then(() => {
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock("landscape").catch(() => {});
             }
         }).catch(() => {});
-    }
-
-    // Unlock audio loop trên trình duyệt mobile
-    if (projectorLoop) {
-        projectorLoop.play().then(() => {
-            projectorLoop.pause();
-            projectorLoop.currentTime = 0;
-        }).catch(err => console.log("Unlock audio err:", err));
     }
 
     // Fade out Intro & Kéo rèm
@@ -73,7 +96,6 @@ function startExperience() {
             i++;
             if (i < numbers.length) {
                 if (countNumber) countNumber.textContent = numbers[i];
-
                 if (numbers[i] === "2") {
                     document.body.classList.add("bg-movie");
                 }
@@ -85,12 +107,12 @@ function startExperience() {
 
                     setTimeout(() => {
                         if (projectorStart) {
-                            projectorStart.play();
+                            projectorStart.play().catch(() => playVideo1());
 
                             projectorStart.onended = () => {
                                 if (projectorLoop) {
                                     projectorLoop.volume = 1;
-                                    projectorLoop.play().catch(e => console.log("Lỗi loop:", e));
+                                    projectorLoop.play().catch(() => {});
                                 }
 
                                 if (opening) {
@@ -139,7 +161,7 @@ function startExperience() {
     }, 1200);
 }
 
-// Bắt cả phím Enter (máy tính) VÀ thao tác chạm (điện thoại)
+// Bắt sự kiện kích hoạt
 window.addEventListener("keydown", (e) => {
     if (e.key === "Enter") startExperience();
 });
@@ -152,6 +174,7 @@ window.addEventListener("touchstart", startExperience);
 function playVideo1() {
     if (projectorLoop) fadeAudio(projectorLoop, 0, 1500);
     
+    // Phát BGM
     if (bgm) {
         bgm.volume = 0;
         bgm.play().then(() => {
@@ -167,8 +190,11 @@ function playVideo1() {
 
         if (video1) {
             video1.classList.add("show");
-            video1.volume = 0.2;
-            video1.play();
+            video1.muted = false; // Bật tiếng nếu video có tiếng
+            video1.play().catch(err => {
+                console.log("Lỗi play video1:", err);
+                // Nếu bị lỗi vẫn cho chạy tiếp gõ chữ
+            });
             startTypewriterEffect();
         }
     }, 1200);
@@ -208,8 +234,8 @@ function playVideo2() {
     if (!video2) return;
     video2.currentTime = 0;
     video2.classList.add("show");
-    video2.volume = video1 ? video1.volume : 0.2;
-    video2.play();
+    video2.muted = false;
+    video2.play().catch(() => {});
 
     video2.onended = () => {
         video2.classList.remove("show");
@@ -330,8 +356,8 @@ function playMutedVideo(videoEl, onEndedCallback) {
     }
     videoEl.currentTime = 0;
     videoEl.classList.add("show");
-    videoEl.volume = 0;
-    videoEl.play().catch(err => {
+    videoEl.muted = true; // Chapter 2 chạy ẩn tiếng
+    videoEl.play().then(() => {}).catch(err => {
         console.error("Lỗi phát video Chapter 2:", err);
         if (onEndedCallback) onEndedCallback();
     });
@@ -380,7 +406,7 @@ function runChapter2Outro() {
 }
 
 // ==========================================
-// 5. CÁC HÀM BỔ TRỢ (UTILITIES)
+// 5. UTILITIES
 // ==========================================
 function fadeAudio(audio, targetVolume, duration) {
     if (!audio) return;
@@ -538,18 +564,15 @@ function playVideo7() {
     }
 
     video7.currentTime = 0;
-    video7.volume = 0;
+    video7.muted = true;
     video7.classList.add("show");
     
-    video7.play().then(() => {
-        fadeAudio(video7, 0.4, 1500);
-    }).catch(err => console.error("Lỗi phát video7:", err));
+    video7.play().then(() => {}).catch(err => console.error("Lỗi phát video7:", err));
 
     video7.ontimeupdate = () => {
         if (video7.duration - video7.currentTime <= 1.5 && !video7.isFadingOut) {
             video7.isFadingOut = true;
             video7.classList.remove("show");
-            fadeAudio(video7, 0, 1200);
         }
     };
 
@@ -609,7 +632,7 @@ function runChapter3Ending() {
 }
 
 // ==========================================
-// 7. OUTRO TOÀN PHIM (MOVIE CREDITS)
+// 7. MOVIE CREDITS
 // ==========================================
 function runFinalOutro() {
     const creditsScreen = document.getElementById("credits-screen");
