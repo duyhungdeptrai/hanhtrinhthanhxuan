@@ -2,173 +2,94 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport chuẩn chống zoom lỗi giao diện và hỗ trợ hiển thị mobile -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hành Trình Thanh Xuân</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400&display=swap" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kỷ Niệm Thanh Xuân</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Khung cảnh báo bắt buộc xoay ngang trên điện thoại -->
-    <div id="rotate-warning">
-        <div class="phone-icon">📱🔄</div>
-        <p>Vui lòng xoay ngang điện thoại để có trải nghiệm xem tốt nhất!</p>
+    <!-- THẺ ÂM THANH (Audio Elements) -->
+    <audio id="projectorStart" src="audio/projector_start.mp3" preload="auto"></audio>
+    <audio id="projectorLoop" src="audio/projector_loop.mp3" preload="auto" loop></audio>
+    <audio id="bgm" src="audio/bgm1.mp3" preload="auto" loop></audio>
+    <audio id="bgm2" src="audio/bgm2.mp3" preload="auto" loop></audio>
+    <audio id="bgm3" src="audio/bgm3.mp3" preload="auto" loop></audio>
+
+    <!-- SCREEN 1: Bắt đầu -->
+    <div id="screen1" class="screen">
+        <p class="tap-notice">Chạm vào màn hình hoặc nhấn ENTER để bắt đầu</p>
     </div>
 
-    <!-- Màn hình mở đầu (Intro) -->
-    <div id="screen1">
-        <h1>Hành Trình Thanh Xuân</h1>
-        <p class="quote">Some memories deserve to become a movie.</p>
-        <p class="enter">CHẠM VÀO MÀN HÌNH ĐỂ BẮT ĐẦU</p>
-    </div>
-
-    <!-- Hiệu ứng rèm che -->
+    <!-- MÀN RÈM -->
     <div id="curtain">
-        <div class="curtain left"></div>
-        <div class="curtain right"></div>
+        <div class="curtain-left"></div>
+        <div class="curtain-right"></div>
     </div>
 
-    <!-- Màn hình đếm ngược -->
-    <div id="countdown">
-        <div id="count-number">3</div>
+    <!-- COUNTDOWN 3-2-1 -->
+    <div id="countdown" class="screen">
+        <span id="count-number">3</span>
     </div>
 
-    <!-- Tựa đề phim chính -->
-    <div id="opening">
-        <h2>HÀNH TRÌNH THANH XUÂN</h2>
+    <!-- MÀN HÌNH MỞ ĐẦU (OPENING) -->
+    <div id="opening" class="overlay-text hide">
+        <h1>HÀNH TRÌNH THANH XUÂN</h1>
     </div>
 
-    <!-- Màn hình Chapter 1 -->
-    <div id="chapter1" class="chapter-screen">
-        <div class="chapter-content">
-            <h2 class="chapter-number">CHAPTER 01</h2>
-            <h1 class="chapter-title">The Beginning</h1>
-            <p class="chapter-date">02.05.2026 — 31.05.2026</p>
-        </div>
+    <!-- CHAPTER 1 TITLE -->
+    <div id="chapter1" class="overlay-text hide">
+        <h2>Chương 1: Những Bước Chân Đầu Tiên</h2>
     </div>
 
-    <!-- Danh sách Video Chapter 1 & 2 (Đã gắn muted và playsinline để tránh bị chặn trên mobile) -->
-    <video id="video1" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video1.mp4" type="video/mp4">
-    </video>
-    
-    <!-- Chữ gõ đè lên Video 1 -->
-    <div id="typewriter-left" class="typewriter-text top-left"></div>
-    <div id="typewriter-right" class="typewriter-text bottom-right"></div>
-
-    <video id="video2" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video2.mp4" type="video/mp4">
-    </video>
-
-    <video id="video3" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video3.mp4" type="video/mp4">
-    </video>
-
-    <video id="video4" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video4.mp4" type="video/mp4">
-    </video>
-
-    <video id="video5" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video5.mp4" type="video/mp4">
-    </video>
-
-    <video id="video6" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video6.mp4" type="video/mp4">
-    </video>
-
-    <!-- Chữ gõ đè lên Video 3 -->
-    <div id="typewriter-v3-left" class="typewriter-text top-left"></div>
-    <div id="typewriter-v3-right" class="typewriter-text bottom-right"></div>
-
-    <!-- Màn hình câu trích dẫn chuyển đoạn (Outro Screen) -->
-    <div id="outro-screen">
-        <p id="outro-text"></p>
-        <p id="tbc-highlight" class="tbc-highlight"></p>
+    <!-- CHAPTER 2 TITLE -->
+    <div id="chapter2-screen" class="overlay-text hide">
+        <h2>Chương 2: Nụ Cười & Ký Ức</h2>
     </div>
 
-    <!-- Màn hình Chapter 2 -->
-    <div id="chapter2-screen" class="chapter-screen">
-        <div class="chapter-content">
-            <h2 class="chapter-number">CHAPTER 02</h2>
-            <h1 class="chapter-title">The Days We Shared</h1>
-            <p class="chapter-date">01/06 — 31/06</p>
-        </div>
+    <!-- CHAPTER 3 TITLE -->
+    <div id="chapter3" class="overlay-text">
+        <h2>Chương 3: Lời Cảm Ơn</h2>
     </div>
 
-    <!-- Màn hình Chapter 3 -->
-    <div id="chapter3" class="chapter-title">
-        <h2>CHAPTER 03</h2>
-        <h1>PRESENT AND FUTURE</h1>
+    <!-- CÁC VIDEO -->
+    <video id="video1" class="video-player" src="video/video1.mp4" playsinline></video>
+    <video id="video2" class="video-player" src="video/video2.mp4" playsinline></video>
+    <video id="video3" class="video-player" src="video/video3.mp4" playsinline></video>
+    <video id="video4" class="video-player" src="video/video4.mp4" playsinline></video>
+    <video id="video5" class="video-player" src="video/video5.mp4" playsinline></video>
+    <video id="video6" class="video-player" src="video/video6.mp4" playsinline></video>
+    <video id="video7" class="video-player" src="video/video7.mp4" playsinline></video>
+
+    <!-- KHUNG HÌNH ẢNH (Image Viewer) -->
+    <img id="imageViewer" class="image-viewer" src="" alt="Memory Image">
+
+    <!-- HIỆU ỨNG CHỮ GÕ TYPEWRITER OVERLAY -->
+    <div id="typewriter-container" class="typewriter-overlay">
+        <p id="typewriter-left" class="typewriter-text"></p>
+        <p id="typewriter-right" class="typewriter-text"></p>
+        <p id="typewriter-v3-left" class="typewriter-text"></p>
+        <p id="typewriter-v3-right" class="typewriter-text"></p>
     </div>
 
-    <video id="video7" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video7.mp4" type="video/mp4">
-    </video>
+    <!-- MÀN HÌNH TRÍCH DẪN (OUTRO SCREEN) -->
+    <div id="outro-screen" class="screen">
+        <p id="outro-text" class="quote-text"></p>
+        <p id="tbc-highlight" class="tbc-text"></p>
+    </div>
 
-    <!-- Khung hiển thị slide ảnh -->
-    <img id="imageViewer" src="" alt="Slide Image">
-    
-    <!-- Các tệp âm thanh -->
-    <audio id="projectorStart" src="audio/projector-start.mp3" preload="auto"></audio>
-    <audio id="projectorLoop" src="audio/projector-loop.mp3" loop preload="auto"></audio>
-    <audio id="bgm" loop preload="auto">
-        <source src="audio/bgm.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="bgm2" loop preload="auto">
-        <source src="audio/bgm2.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="bgm3" src="audio/bgm3.mp3" loop preload="auto"></audio>
-
-    <!-- Màn hình Cuối Phim (Movie Credits) -->
+    <!-- MOVIE CREDITS (KẾT THÚC) -->
     <div id="credits-screen" class="credits-container">
         <div class="credits-content">
-            <h1 class="credits-title">"THANH XUÂN RỰC RỠ"</h1>
-
-            <div class="credits-group">
-                <p class="credits-role">Directed by</p>
-                <p class="credits-name">Duy Hùng</p>
-            </div>
-
-            <div class="credits-group">
-                <p class="credits-role">Produced by</p>
-                <p class="credits-name">Duy Hùng</p>
-            </div>
-
-            <div class="credits-group">
-                <p class="credits-role">Written by</p>
-                <p class="credits-name">Duy Hùng</p>
-            </div>
-
-            <div class="credits-group">
-                <p class="credits-role">Cinematography by</p>
-                <p class="credits-name">Duy Hùng</p>
-            </div>
-
-            <div class="credits-group">
-                <p class="credits-role">Edited by</p>
-                <p class="credits-name">Duy Hùng</p>
-            </div>
-
-            <div class="credits-group">
-                <p class="credits-role">Music by</p>
-                <p class="credits-name">Duy Hùng</p>
-            </div>
-
-            <div class="credits-group">
-                <p class="credits-role">Special Thanks to</p>
-                <p class="credits-name">Duy Hùng</p>
-            </div>
-
-            <div class="credits-end">THE END</div>
+            <h3>CẢM ƠN BẠN ĐÃ THEO DÕI</h3>
+            <p>Một cuốn phim nhỏ lưu giữ thanh xuân</p>
+            <br>
+            <p>Director: Bạn</p>
+            <p>Music: Special Soundtrack</p>
+            <br>
+            <p>— THE END —</p>
         </div>
     </div>
 
-    <!-- Nối file JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>

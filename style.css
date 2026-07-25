@@ -4,499 +4,207 @@
     box-sizing: border-box;
 }
 
-body {
-    margin: 0;
-    color: #f5f5f5;
+body, html {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     background-color: #000;
-    
-    background-image: url("images/background.jpg");
-    background-position: center center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-
-    transition: background-image 1.2s ease-in-out;
+    font-family: 'Arial', sans-serif;
+    color: #fff;
     user-select: none;
-    -webkit-tap-highlight-color: transparent;
 }
 
-/* Các Class đổi background theo tiến trình */
+/* Các background linh hoạt chuyển đổi */
 body.bg-movie {
-    background-image: url("images/background1.jpg") !important;
+    background-color: #0d0d0d;
 }
 
 body.bg-chapter1 {
-    background-image: url("images/background2.jpg") !important;
+    background: url('images/background1.jpg') no-repeat center center/cover;
+    transition: background 1.5s ease-in-out;
 }
 
 body.bg-chapter2 {
-    background-image: url("images/chapter2.jpg") !important;
+    background: url('images/background2.jpg') no-repeat center center/cover;
+    transition: background 1.5s ease-in-out;
 }
 
 body.bg-chapter3 {
-    background-image: url("images/chapter3.jpg") !important;
+    background: url('images/chapter2.jpg') no-repeat center center/cover;
+    transition: background 1.5s ease-in-out;
 }
 
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, .35);
-    pointer-events: none;
-    z-index: -1;
-}
-
-/* ===========================
-    CẢNH BÁO XOAY MÀN HÌNH (DỌC -> NGANG)
-=========================== */
-#rotate-warning {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 99999;
-    flex-direction: column;
+/* Base style cho các screen full màn hình */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
     justify-content: center;
     align-items: center;
-    text-align: center;
-    padding: 20px;
-    color: #fce8ad;
-    font-family: 'Inter', sans-serif;
+    z-index: 10;
+    transition: opacity 1s ease;
 }
-
-#rotate-warning .phone-icon {
-    font-size: 50px;
-    margin-bottom: 15px;
-    animation: rotatePhone 2s infinite ease-in-out;
-}
-
-@keyframes rotatePhone {
-    0% { transform: rotate(0deg); }
-    50% { transform: rotate(-90deg); }
-    100% { transform: rotate(0deg); }
-}
-
-/* Khi xoay máy dọc trên thiết bị di động thì hiện cảnh báo */
-@media screen and (max-width: 900px) and (orientation: portrait) {
-    #rotate-warning {
-        display: flex;
-    }
-}
-
-/* ===========================
-        SCREEN 1 (INTRO)
-=========================== */
 
 #screen1 {
-    text-align: center;
-    animation: fadeIn 1.6s ease;
-    transition: opacity 1s ease;
-    padding: 0 20px;
+    background-color: #000;
+    cursor: pointer;
 }
 
-h1 {
-    font-family: "Cinzel", serif;
-    font-size: min(8vw, 64px);
-    font-weight: 500;
-    letter-spacing: 3px;
-    text-shadow: 0 0 8px rgba(255, 255, 255, .08);
-    text-align: center;
-}
-
-.quote {
-    margin-top: 20px;
-    font-size: min(3.5vw, 18px);
-    font-style: italic;
-    color: #d2d2d2;
-    font-family: 'Inter', sans-serif;
-    text-align: center;
-}
-
-.enter {
-    margin-top: min(15vw, 100px);
-    font-size: min(3.2vw, 17px);
-    color: #8d8d8d;
+.tap-notice {
+    font-size: 1.2rem;
     letter-spacing: 2px;
-    font-family: 'Inter', sans-serif;
-    animation: blink 2s infinite;
-    text-align: center;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
 }
 
 .fade-out {
     opacity: 0;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes blink {
-    0%, 100% { opacity: .35; }
-    50% { opacity: 1; }
-}
-
-/* ===========================
-        CURTAIN (RÈM)
-=========================== */
-
-#curtain {
-    position: fixed;
-    inset: 0;
     pointer-events: none;
-    z-index: 100;
 }
 
-.curtain {
+/* Hiệu ứng Rèm kéo */
+#curtain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.curtain-left, .curtain-right {
     position: absolute;
     top: 0;
     width: 50%;
     height: 100%;
-    background: repeating-linear-gradient(
-        90deg,
-        #500000 0px,
-        #6b0000 18px,
-        #8b0000 36px,
-        #a51515 54px,
-        #8b0000 72px,
-        #6b0000 90px,
-        #500000 108px
-    );
-    box-shadow: inset 0 0 50px rgba(0, 0, 0, .45), inset 0 0 10px rgba(255, 255, 255, .08);
-    transition: transform 1.2s ease-in-out;
+    background-color: #111;
+    transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-.left { left: 0; transform: translateX(-100%); }
-.right { right: 0; transform: translateX(100%); }
+.curtain-left { left: 0; transform: translateX(-100%); }
+.curtain-right { right: 0; transform: translateX(100%); }
 
-#curtain.close .left, #curtain.close .right { transform: translateX(0); }
-#curtain.open .left { transform: translateX(-100%); }
-#curtain.open .right { transform: translateX(100%); }
+#curtain.close .curtain-left { transform: translateX(0); }
+#curtain.close .curtain-right { transform: translateX(0); }
 
-/* ===========================
-      COUNTDOWN (VINTAGE)
-=========================== */
+#curtain.open .curtain-left { transform: translateX(-100%); }
+#curtain.open .curtain-right { transform: translateX(100%); }
 
+/* Màn hình Countdown */
 #countdown {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #5a5a5a;
-    color: white;
-    font-family: "Cinzel", serif;
-    font-size: min(25vw, 180px);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease;
-    z-index: 50;
-    overflow: hidden;
-}
-
-#countdown::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    width: 3px;
-    background: rgba(0, 0, 0, 0.75);
-    transform: translateX(-50%);
-}
-
-#countdown::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    height: 3px;
-    background: rgba(0, 0, 0, 0.75);
-    transform: translateY(-50%);
-}
-
-#count-number {
-    position: relative;
-    z-index: 2;
+    z-index: 15;
 }
 
 #countdown.show {
     opacity: 1;
 }
 
-/* ===========================
-        OPENING (THANH XUÂN)
-=========================== */
-
-#opening {
-    position: fixed;
-    overflow: hidden;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: transparent;
-    opacity: 0;
-    transition: opacity 1.2s ease;
-    z-index: 60;
+#count-number {
+    font-size: 6rem;
+    font-weight: bold;
 }
 
-#opening.show { opacity: 1; }
-#opening.hide { opacity: 0; }
-
-#opening h2 {
-    font-family: "Cinzel", serif;
-    font-size: min(8vw, 70px);
-    font-weight: 700;
-    letter-spacing: 5px;
-    color: #f5f5f5;
-    position: relative;
-    z-index: 2;
-    text-align: center;
-
-    text-shadow: 
-        1px 1px 0px #000000,
-        2px 2px 0px #000000,
-        3px 3px 0px #000000,
-        4px 4px 0px #000000,
-        5px 5px 0px #000000,
-        6px 6px 0px #000000,
-        7px 7px 0px #000000,
-        10px 10px 15px rgba(0, 0, 0, 0.8),
-        12px 12px 25px rgba(0, 0, 0, 0.6);
-}
-
-/* ===========================
-        CHAPTER I & CHAPTER TITLES
-=========================== */
-
-#chapter1 {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: transparent;
-    color: #f5f5f5;
-
-    opacity: 0;
-    pointer-events: none;
-
-    transition: opacity 1.2s ease;
-    z-index: 80;
-    text-align: center;
-    padding: 0 20px;
-}
-
-#chapter1.show {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-#chapter1 h3 {
-    font-family: 'Inter', sans-serif;
-    font-size: min(3vw, 18px);
-    letter-spacing: 6px;
-    color: #d5d5d5;
-    margin-bottom: 18px;
-    text-align: center;
-}
-
-#chapter1 h1 {
-    font-family: "Cinzel", serif;
-    font-size: min(8vw, 62px);
-    font-weight: 700;
-    color: #f5f5f5;
-    text-align: center;
-    
-    text-shadow: 
-        1px 1px 0px #000000,
-        2px 2px 0px #000000,
-        3px 3px 0px #000000,
-        4px 4px 0px #000000,
-        5px 5px 0px #000000,
-        6px 6px 0px #000000,
-        7px 7px 0px #000000,
-        10px 10px 15px rgba(0, 0, 0, 0.8),
-        12px 12px 25px rgba(0, 0, 0, 0.6);
-}
-
-#chapter1 p {
-    margin-top: 22px;
-    font-family: 'Inter', sans-serif;
-    font-size: min(3vw, 18px);
-    color: #c5c5c5;
-    text-align: center;
-}
-
-#chapter1.hide {
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* --- CHAPTER 03 TITLES --- */
-#chapter3 {
-    position: fixed;
+/* Tiêu đề Chapter & Overlay Text */
+.overlay-text {
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 100;
-    pointer-events: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     text-align: center;
-    width: 100vw;
+    z-index: 25;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1.5s ease, visibility 1.5s ease;
+}
+
+.overlay-text.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.overlay-text.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#chapter3 {
     opacity: 0;
     visibility: hidden;
     transition: opacity 1.5s ease;
 }
 
-#chapter3 h2 {
-    font-family: 'Cinzel', serif;
-    font-size: min(4vw, 24px);
-    letter-spacing: 10px;
-    color: #fce8ad;
-    margin-bottom: 10px;
-    text-shadow: 0 0 10px rgba(252, 232, 173, 0.5);
-    text-align: center;
-}
-
-#chapter3 h1 {
-    font-family: 'Cinzel', serif;
-    font-size: min(7vw, 56px);
-    letter-spacing: 8px;
-    color: #fff;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
-    text-align: center;
-    white-space: nowrap;
-}
-
-/* ===========================
-     VIDEO & IMAGE VIEWER
-=========================== */
-
-video, #imageViewer {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    object-fit: contain;
-    background-color: #000;
-    display: block;
+/* Thẻ Video & Image Viewer */
+.video-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 5;
     opacity: 0;
+    transition: opacity 1s ease;
     pointer-events: none;
-    z-index: 90;
-
-    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
 }
 
-video.show, #imageViewer.show {
+.video-player.show {
     opacity: 1;
     pointer-events: auto;
 }
 
-#imageViewer {
-    transform: scale(1);
-    transition: opacity 1.2s ease-in-out, transform 4s ease-out;
+.image-viewer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 85%;
+    max-height: 85%;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    z-index: 6;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
 }
 
-#imageViewer.show {
-    transform: scale(1.04);
+.image-viewer.show {
+    opacity: 1;
 }
 
-body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.6) 100%);
+/* Layout hiệu ứng chữ Typewriter */
+.typewriter-overlay {
+    position: absolute;
+    bottom: 10%;
+    width: 100%;
+    text-align: center;
+    z-index: 30;
     pointer-events: none;
-    z-index: 95;
+    padding: 0 20px;
 }
-
-/* ===========================
-    TYPEWRITER TEXT ON VIDEO
-=========================== */
 
 .typewriter-text {
-    position: fixed;
-    z-index: 95;
-    font-family: 'Cinzel', serif;
-    font-size: min(3.5vw, 24px);
-    font-weight: 600;
-    color: #fce8ad;
-    
-    text-shadow: 
-        1px 1px 2px #000,
-        0 0 10px rgba(252, 232, 173, 0.4);
-
-    pointer-events: none;
-    max-width: 40vw;
-    line-height: 1.5;
-    letter-spacing: 1px;
+    font-size: 1.3rem;
+    margin: 5px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    min-height: 1.5em;
 }
 
-.top-left {
-    top: 12%;
-    left: 25px;
-    text-align: left;
-}
-
-.bottom-right {
-    bottom: 12%;
-    right: 25px;
-    text-align: right;
-}
-
-.typewriter-text::after {
-    content: "|";
-    display: inline-block;
-    margin-left: 3px;
-    animation: cursorBlink 0.7s infinite;
-    color: #fce8ad;
-}
-
-.typewriter-text.done::after {
-    display: none;
-}
-
-@keyframes cursorBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-}
-
-/* ===========================
-    CHAPTER OUTRO SCREEN
-=========================== */
-
+/* Màn hình Trích dẫn (Outro Screen) */
 #outro-screen {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #000;
-    z-index: 100;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background-color: rgba(0,0,0,0.85);
+    flex-direction: column;
+    padding: 0 30px;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 1.5s ease-in-out;
 }
 
 #outro-screen.show {
@@ -504,82 +212,35 @@ body::after {
     pointer-events: auto;
 }
 
-#outro-text {
-    font-family: 'Cinzel', serif;
-    font-size: min(4vw, 28px);
-    font-weight: 500;
-    color: #fce8ad;
-    max-width: 85vw;
+.quote-text {
+    font-size: 1.4rem;
+    line-height: 1.8;
     text-align: center;
-    line-height: 1.6;
-    padding: 0 20px;
-    letter-spacing: 1px;
+    max-width: 800px;
 }
 
-#outro-text::after {
-    content: "|";
-    display: inline-block;
-    margin-left: 5px;
-    animation: cursorBlink 0.7s infinite;
+.tbc-text {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #f39c12;
+    margin-top: 20px;
 }
 
-#outro-text.done::after {
-    display: none;
-}
-
-.chapter-screen {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #000;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 1.5s ease-in-out;
-}
-
-.chapter-screen.show {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.tbc-highlight {
-    position: absolute;
-    bottom: 30px;
-    right: 35px;
-    font-size: min(3.5vw, 1.8rem);
-    font-weight: 600;
-    font-style: italic;
-    color: #ffeb3b;
-    letter-spacing: 2px;
-    margin: 0;
-    opacity: 1;
-    text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);
-    z-index: 10;
-}
-
-/* ===========================
-        MOVIE CREDITS
-=========================== */
-
+/* Movie Credits Roll */
 .credits-container {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-color: #000;
-    z-index: 9999;
-    overflow: hidden;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.5s ease;
+    transition: opacity 1s ease;
 }
 
 .credits-container.show {
@@ -588,59 +249,15 @@ body::after {
 }
 
 .credits-content {
-    position: absolute;
-    width: 100%;
-    top: 100vh;
-    left: 0;
     text-align: center;
-    color: #fff;
-    font-family: 'Cinzel', serif;
-    will-change: transform;
+    transform: translateY(100%);
 }
 
 .credits-container.start .credits-content {
-    animation: rollCredits 22s linear forwards;
+    animation: moveCredits 18s linear forwards;
 }
 
-@keyframes rollCredits {
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(calc(-100% - 100vh));
-    }
-}
-
-.credits-title {
-    font-size: min(5vw, 2.2rem);
-    letter-spacing: 3px;
-    margin-bottom: 40px;
-    font-weight: bold;
-    color: #ffffff;
-}
-
-.credits-group {
-    margin-bottom: 25px;
-}
-
-.credits-role {
-    font-size: min(3vw, 1.2rem);
-    font-weight: bold;
-    color: #ffffff;
-    margin-bottom: 5px;
-}
-
-.credits-name {
-    font-size: min(2.8vw, 1.15rem);
-    color: #dddddd;
-    margin: 0;
-    letter-spacing: 1px;
-}
-
-.credits-end {
-    margin-top: 50px;
-    font-size: min(4vw, 1.8rem);
-    letter-spacing: 5px;
-    font-weight: bold;
-    color: #ffeb3b;
+@keyframes moveCredits {
+    0% { transform: translateY(100vh); }
+    100% { transform: translateY(-100%); }
 }
