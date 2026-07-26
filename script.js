@@ -30,11 +30,60 @@ const bgm3 = document.getElementById("bgm3");
 let started = false;
 
 // ==========================================
-// 1. CHÀM / BẤM CHUỘT ĐỂ BẮT ĐẦU
+// HÀM HỖ TRỢ KÍCH HOẠT VÀ PHÁT AUDIO AN TOÀN TRÊN MOBILE
+// ==========================================
+function unlockAudios() {
+    const audios = [projectorStart, projectorLoop, bgm, bgm2, bgm3];
+    audios.forEach(audio => {
+        if (audio) {
+            audio.play().then(() => {
+                audio.pause();
+                audio.currentTime = 0;
+            }).catch(() => {});
+        }
+    });
+}
+
+function safePlayAudio(audioEl, onEndedCallback) {
+    if (!audioEl) {
+        if (onEndedCallback) onEndedCallback();
+        return;
+    }
+
+    let hasEnded = false;
+    const triggerEnd = () => {
+        if (!hasEnded) {
+            hasEnded = true;
+            if (onEndedCallback) onEndedCallback();
+        }
+    };
+
+    audioEl.currentTime = 0;
+    const playPromise = audioEl.play();
+
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            audioEl.onended = triggerEnd;
+        }).catch(err => {
+            console.warn("Audio play blocked/failed:", err);
+            // Nếu trình duyệt chặn phát tiếng, chờ đúng bằng thời lượng file hoặc 2.5s rồi tự đi tiếp
+            const fallbackDuration = (audioEl.duration && !isNaN(audioEl.duration)) ? audioEl.duration * 1000 : 2500;
+            setTimeout(triggerEnd, fallbackDuration);
+        });
+    } else {
+        audioEl.onended = triggerEnd;
+    }
+}
+
+// ==========================================
+// 1. KÍCH HOẠT SỰ KIỆN
 // ==========================================
 function startExperience() {
     if (started) return;
     started = true;
+
+    // Giải phóng khóa âm thanh di động ngay tại sự kiện chạm của người dùng
+    unlockAudios();
 
     if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -68,53 +117,48 @@ function startExperience() {
                     if (countdown) countdown.classList.remove("show");
 
                     setTimeout(() => {
-                        if (projectorStart) {
-                            projectorStart.play().catch(() => {});
+                        // Sử dụng safePlayAudio thay vì gọi .play() trực tiếp
+                        safePlayAudio(projectorStart, () => {
+                            if (projectorLoop) {
+                                projectorLoop.play().catch(() => {});
+                            }
 
-                            projectorStart.onended = () => {
-                                if (projectorLoop) {
-                                    projectorLoop.play().catch(() => {});
-                                }
+                            if (opening) {
+                                opening.classList.remove("hide");
+                                opening.classList.add("show");
+                            }
 
+                            setTimeout(() => {
                                 if (opening) {
-                                    opening.classList.remove("hide");
-                                    opening.classList.add("show");
+                                    opening.classList.remove("show");
+                                    opening.classList.add("hide");
                                 }
 
                                 setTimeout(() => {
-                                    if (opening) {
-                                        opening.classList.remove("show");
-                                        opening.classList.add("hide");
-                                    }
+                                    document.body.classList.remove("bg-movie");
+                                    document.body.classList.add("bg-chapter1");
 
                                     setTimeout(() => {
-                                        document.body.classList.remove("bg-movie");
-                                        document.body.classList.add("bg-chapter1");
+                                        if (chapter1) {
+                                            chapter1.classList.remove("hide");
+                                            chapter1.classList.add("show");
+                                        }
 
                                         setTimeout(() => {
                                             if (chapter1) {
-                                                chapter1.classList.remove("hide");
-                                                chapter1.classList.add("show");
+                                                chapter1.classList.remove("show");
+                                                chapter1.classList.add("hide");
                                             }
 
                                             setTimeout(() => {
-                                                if (chapter1) {
-                                                    chapter1.classList.remove("show");
-                                                    chapter1.classList.add("hide");
-                                                }
+                                                playVideo1();
+                                            }, 1000);
 
-                                                setTimeout(() => {
-                                                    playVideo1();
-                                                }, 1000);
-
-                                            }, 2000);
-                                        }, 500);
-                                    }, 300);
-                                }, 2000);
-                            };
-                        } else {
-                            playVideo1();
-                        }
+                                        }, 2000);
+                                    }, 500);
+                                }, 300);
+                            }, 2000);
+                        });
                     }, 500);
                 }, 300);
             }
@@ -129,7 +173,7 @@ window.addEventListener("click", startExperience);
 window.addEventListener("touchstart", startExperience, { passive: true });
 
 // ==========================================
-// 2. HÀM PHÁT VIDEO MUTED AN TOÀN TUYỆT ĐỐI
+// 2. HÀM PHÁT VIDEO MUTED TUYỆT ĐỐI
 // ==========================================
 function playMutedVideo(videoEl, onEndedCallback) {
     if (!videoEl) {
@@ -138,7 +182,7 @@ function playMutedVideo(videoEl, onEndedCallback) {
     }
     
     videoEl.currentTime = 0;
-    videoEl.muted = true; // Tắt tiếng 100% để trình duyệt không bao giờ chặn
+    videoEl.muted = true;
     videoEl.classList.add("show");
     
     const p = videoEl.play();
@@ -157,7 +201,7 @@ function playMutedVideo(videoEl, onEndedCallback) {
 }
 
 // ==========================================
-// 3. PHÁT VIDEO 1 & SLIDE ẢNH
+// 3. PHÁT VIDEO 1
 // ==========================================
 function playVideo1() {
     if (projectorLoop) projectorLoop.pause();
@@ -193,7 +237,7 @@ function playVideo1() {
 }
 
 // ==========================================
-// 4. PHÁT VIDEO 2 & CHUYỂN CHAPTER 1 -> 2
+// 4. PHÁT VIDEO 2
 // ==========================================
 function playVideo2() {
     playMutedVideo(video2, () => {
