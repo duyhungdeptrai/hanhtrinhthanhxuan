@@ -28,17 +28,44 @@ const titleChapter3 = document.getElementById("chapter3");
 const bgm3 = document.getElementById("bgm3");
 
 let started = false;
+let activeTypewriterTimers = [];
 
-// Cấu hình thuộc tính bắt buộc cho tất cả Video ngay khi load trang
-[video1, video2, video3, video4, video5, video6, video7].forEach(v => {
+// Cấu hình bắt buộc thuộc tính di động cho tất cả video
+const allVideos = [video1, video2, video3, video4, video5, video6, video7];
+allVideos.forEach(v => {
     if (v) {
         v.muted = true;
         v.defaultMuted = true;
         v.playsInline = true;
-        v.setAttribute("playsinline", "");
-        v.setAttribute("webkit-playsinline", "");
+        v.setAttribute("playsinline", "true");
+        v.setAttribute("webkit-playsinline", "true");
+        v.setAttribute("x5-playsinline", "true"); // Thêm hỗ trợ trình duyệt Android/Zalo/WeChat
+        v.style.display = "none"; // Ẩn mặc định
     }
 });
+
+// ==========================================
+// HÀM DỌN SẠCH TẤT CẢ CHỮ ĐỂ KHÔNG BỊ ĐÈ
+// ==========================================
+function clearAllTypewriterTexts() {
+    // Dừng tất cả setTimeout đang chạy gõ chữ
+    activeTypewriterTimers.forEach(t => clearTimeout(t));
+    activeTypewriterTimers = [];
+
+    const textIds = [
+        "typewriter-left", "typewriter-right",
+        "typewriter-v3-left", "typewriter-v3-right",
+        "outro-text", "tbc-highlight"
+    ];
+
+    textIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = "";
+            el.classList.remove("done");
+        }
+    });
+}
 
 // ==========================================
 // HÀM BẢO ĐẢM PHÁT AUDIO KHÔNG BAO GIỜ BỊ TREO LUỒNG
@@ -96,7 +123,8 @@ function startExperience() {
     if (started) return;
     started = true;
 
-    // Unlock nhẹ âm thanh chính
+    clearAllTypewriterTexts();
+
     if (projectorStart) {
         projectorStart.play().then(() => projectorStart.pause()).catch(() => {});
     }
@@ -133,7 +161,6 @@ function startExperience() {
                     if (countdown) countdown.classList.remove("show");
 
                     await new Promise(r => setTimeout(r, 300));
-
                     await playAudioWithFallback(projectorStart, 2500);
 
                     safePlayLoop(projectorLoop);
@@ -182,20 +209,29 @@ window.addEventListener("click", startExperience);
 window.addEventListener("touchstart", startExperience, { passive: true });
 
 // ==========================================
-// 2. HÀM PHÁT VIDEO CHUẨN TRÊN MOBILE
+// 2. HÀM PHÁT VIDEO ÉP HIỂN THỊ CẬP NHẬT
 // ==========================================
 function playMutedVideo(videoEl, onEndedCallback) {
     if (!videoEl) {
         if (onEndedCallback) onEndedCallback();
         return;
     }
-    
+
+    // Ẩn toàn bộ video khác trước
+    allVideos.forEach(v => {
+        if (v) {
+            v.style.display = "none";
+            v.classList.remove("show");
+        }
+    });
+
     let hasFinished = false;
     const finish = () => {
         if (!hasFinished) {
             hasFinished = true;
             videoEl.onended = null;
             videoEl.onerror = null;
+            videoEl.style.display = "none";
             videoEl.classList.remove("show");
             if (onEndedCallback) onEndedCallback();
         }
@@ -203,16 +239,20 @@ function playMutedVideo(videoEl, onEndedCallback) {
 
     videoEl.currentTime = 0;
     videoEl.muted = true;
+    videoEl.defaultMuted = true;
     videoEl.playsInline = true;
+
+    // Ép hiển thị ưu tiên cao nhất bằng style trực tiếp
+    videoEl.style.display = "block";
     videoEl.classList.add("show");
-    
+
     videoEl.onended = finish;
     videoEl.onerror = finish;
 
     const playPromise = videoEl.play();
     if (playPromise !== undefined) {
         playPromise.catch(err => {
-            console.error("Lỗi phát video:", err);
+            console.error("Video play error:", err);
             finish();
         });
     }
@@ -226,13 +266,12 @@ function playVideo1() {
     safePlayLoop(bgm);
 
     setTimeout(() => {
+        clearAllTypewriterTexts();
         startTypewriterEffect();
 
         playMutedVideo(video1, () => {
-            const elLeft = document.getElementById("typewriter-left");
-            const elRight = document.getElementById("typewriter-right");
-            if (elLeft) elLeft.textContent = "";
-            if (elRight) elRight.textContent = "";
+            // Xóa chữ khi video 1 kết thúc
+            clearAllTypewriterTexts();
 
             if (imageViewer) {
                 imageViewer.src = "images/image1.jpg";
@@ -245,7 +284,6 @@ function playVideo1() {
 
             setTimeout(() => {
                 if (imageViewer) imageViewer.classList.remove("show");
-                // Phát ngay video 2 sau khi ẩn ảnh image4
                 playVideo2();
             }, 12000);
         });
@@ -256,6 +294,8 @@ function playVideo1() {
 // 4. PHÁT VIDEO 2
 // ==========================================
 function playVideo2() {
+    clearAllTypewriterTexts();
+
     playMutedVideo(video2, () => {
         const outroScreen = document.getElementById("outro-screen");
         const outroText = document.getElementById("outro-text");
@@ -266,9 +306,7 @@ function playVideo2() {
 
             setTimeout(() => {
                 if (outroText) {
-                    outroText.textContent = "";
-                    outroText.classList.remove("done");
-
+                    clearAllTypewriterTexts();
                     typeWriter(outroText, quoteContent, 70, () => {
                         setTimeout(() => {
                             if (bgm) bgm.pause();
@@ -298,6 +336,7 @@ function playVideo2() {
 // 5. LOGIC CHAPTER 2
 // ==========================================
 function startChapter2() {
+    clearAllTypewriterTexts();
     const chapter2Screen = document.getElementById("chapter2-screen");
     if (chapter2Screen) chapter2Screen.classList.add("show");
 
@@ -312,13 +351,11 @@ function startChapter2() {
 }
 
 function runChapter2Content() {
+    clearAllTypewriterTexts();
     startTypewriterForVideo3();
 
     playMutedVideo(video3, () => {
-        const elLeft = document.getElementById("typewriter-v3-left");
-        const elRight = document.getElementById("typewriter-v3-right");
-        if (elLeft) elLeft.textContent = "";
-        if (elRight) elRight.textContent = "";
+        clearAllTypewriterTexts();
 
         playMutedVideo(video4, () => {
             if (imageViewer) {
@@ -331,7 +368,7 @@ function runChapter2Content() {
 
             setTimeout(() => {
                 if (imageViewer) imageViewer.classList.remove("show");
-                
+
                 playMutedVideo(video5, () => {
                     playMutedVideo(video6, () => {
                         if (imageViewer) {
@@ -353,14 +390,10 @@ function runChapter2Content() {
 }
 
 function runChapter2Outro() {
+    clearAllTypewriterTexts();
     const outroScreen = document.getElementById("outro-screen");
     const outroText = document.getElementById("outro-text");
     const quoteChapter2 = "Những ngày tháng chúng ta cùng gặt hái tiếng cười, sẽ mãi là những trang ký ức rực rỡ nhất...";
-
-    if (outroText) {
-        outroText.textContent = "";
-        outroText.classList.remove("done");
-    }
 
     if (outroScreen) outroScreen.classList.add("show");
 
@@ -368,14 +401,14 @@ function runChapter2Outro() {
         typeWriter(outroText, quoteChapter2, 75, () => {
             setTimeout(() => {
                 if (outroScreen) outroScreen.classList.remove("show");
-                
+
                 if (bgm2) bgm2.pause();
 
                 document.body.classList.remove("bg-chapter2");
                 document.body.classList.add("bg-chapter3");
 
                 setTimeout(() => {
-                    if (outroText) outroText.textContent = "";
+                    clearAllTypewriterTexts();
                     startChapter3();
                 }, 1500);
 
@@ -385,7 +418,7 @@ function runChapter2Outro() {
 }
 
 // ==========================================
-// 6. UTILITIES
+// 6. UTILITIES GÕ CHỮ & ẢNH
 // ==========================================
 function changeImage(src) {
     if (!imageViewer) return;
@@ -401,6 +434,25 @@ function changeImage(src) {
     }, 1000);
 }
 
+function typeWriter(element, text, speed, callback) {
+    if (!element) return;
+    element.textContent = "";
+    let i = 0;
+
+    function type() {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+            const timer = setTimeout(type, speed);
+            activeTypewriterTimers.push(timer);
+        } else {
+            element.classList.add("done");
+            if (callback) callback();
+        }
+    }
+    type();
+}
+
 function startTypewriterEffect() {
     const textLeft = "Những khoảnh khắc đơn giản lại vô tình";
     const textRight = "trở thành những điều hạnh phúc nhất";
@@ -410,15 +462,11 @@ function startTypewriterEffect() {
 
     if (!elLeft || !elRight) return;
 
-    elLeft.textContent = "";
-    elRight.textContent = "";
-    elLeft.classList.remove("done");
-    elRight.classList.remove("done");
-
     typeWriter(elLeft, textLeft, 70, () => {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             typeWriter(elRight, textRight, 70);
         }, 300);
+        activeTypewriterTimers.push(timer);
     });
 }
 
@@ -431,38 +479,19 @@ function startTypewriterForVideo3() {
 
     if (!elLeft || !elRight) return;
 
-    elLeft.textContent = "";
-    elRight.textContent = "";
-    elLeft.classList.remove("done");
-    elRight.classList.remove("done");
-
     typeWriter(elLeft, textLeft, 70, () => {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             typeWriter(elRight, textRight, 70);
         }, 300);
+        activeTypewriterTimers.push(timer);
     });
-}
-
-function typeWriter(element, text, speed, callback) {
-    if (!element) return;
-    let i = 0;
-    function type() {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-        } else {
-            element.classList.add("done");
-            if (callback) callback();
-        }
-    }
-    type();
 }
 
 // ==========================================
 // 7. LOGIC CHAPTER 3
 // ==========================================
 function startChapter3() {
+    clearAllTypewriterTexts();
     safePlayLoop(bgm3);
 
     const ch3 = document.getElementById("chapter3");
@@ -470,17 +499,17 @@ function startChapter3() {
     if (ch3) {
         setTimeout(() => {
             ch3.style.visibility = "visible";
-            ch3.style.opacity = "1"; 
+            ch3.style.opacity = "1";
 
             setTimeout(() => {
-                ch3.style.opacity = "0"; 
+                ch3.style.opacity = "0";
 
                 setTimeout(() => {
                     ch3.style.visibility = "hidden";
                     runChapter3Content();
                 }, 1500);
 
-            }, 3500); 
+            }, 3500);
 
         }, 500);
     } else {
@@ -489,15 +518,11 @@ function startChapter3() {
 }
 
 function runChapter3Content() {
+    clearAllTypewriterTexts();
     const outroScreen = document.getElementById("outro-screen");
     const outroText = document.getElementById("outro-text");
-    
-    const quote1 = "Cảm ơn em vì đã xuất hiện và cùng anh tạo nên những ký ức tuyệt vời nhất...";
 
-    if (outroText) {
-        outroText.textContent = "";
-        outroText.classList.remove("done");
-    }
+    const quote1 = "Cảm ơn em vì đã xuất hiện và cùng anh tạo nên những ký ức tuyệt vời nhất...";
 
     if (outroScreen) outroScreen.classList.add("show");
 
@@ -507,7 +532,7 @@ function runChapter3Content() {
                 if (outroScreen) outroScreen.classList.remove("show");
 
                 setTimeout(() => {
-                    if (outroText) outroText.textContent = "";
+                    clearAllTypewriterTexts();
                     playVideo7();
                 }, 1200);
 
@@ -523,20 +548,13 @@ function playVideo7() {
 }
 
 function runChapter3Ending() {
+    clearAllTypewriterTexts();
     const outroScreen = document.getElementById("outro-screen");
     const outroText = document.getElementById("outro-text");
     const tbcHighlight = document.getElementById("tbc-highlight");
 
     const quote2 = "Hy vọng sau này chúng ta vẫn luôn cùng nhau bước tiếp trên những hành trình phía trước...";
     const tbcText = "To be continued...";
-
-    if (outroText) {
-        outroText.textContent = "";
-        outroText.classList.remove("done");
-    }
-    if (tbcHighlight) {
-        tbcHighlight.textContent = "";
-    }
 
     document.body.classList.remove("bg-chapter3");
     document.body.classList.remove("bg-movie");
@@ -553,6 +571,7 @@ function runChapter3Ending() {
 
                             setTimeout(() => {
                                 if (outroScreen) outroScreen.classList.remove("show");
+                                clearAllTypewriterTexts();
                                 runFinalOutro();
                             }, 1000);
 
@@ -570,6 +589,7 @@ function runChapter3Ending() {
 // 8. MOVIE CREDITS
 // ==========================================
 function runFinalOutro() {
+    clearAllTypewriterTexts();
     const creditsScreen = document.getElementById("credits-screen");
 
     if (creditsScreen) {
