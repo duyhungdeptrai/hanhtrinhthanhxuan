@@ -30,49 +30,54 @@ const bgm3 = document.getElementById("bgm3");
 let started = false;
 
 // ==========================================
-// HÀM HỖ TRỢ KÍCH HOẠT VÀ PHÁT AUDIO AN TOÀN TRÊN MOBILE
+// HÀM BẢO ĐẢM PHÁT AUDIO KHÔNG BAO GIỜ BỊ TREO LUỒNG
 // ==========================================
-function unlockAudios() {
-    const audios = [projectorStart, projectorLoop, bgm, bgm2, bgm3];
-    audios.forEach(audio => {
-        if (audio) {
-            audio.play().then(() => {
-                audio.pause();
-                audio.currentTime = 0;
-            }).catch(() => {});
+function playAudioWithFallback(audioEl, maxWaitMs = 3000) {
+    return new Promise((resolve) => {
+        if (!audioEl) {
+            resolve();
+            return;
+        }
+
+        let isDone = false;
+        const done = () => {
+            if (!isDone) {
+                isDone = true;
+                audioEl.onended = null;
+                resolve();
+            }
+        };
+
+        // Bẫy thời gian: Nếu quá maxWaitMs mà audio không phát xong hoặc bị chặn, tự động đi tiếp
+        const timer = setTimeout(done, maxWaitMs);
+
+        audioEl.currentTime = 0;
+        const p = audioEl.play();
+
+        if (p !== undefined) {
+            p.then(() => {
+                audioEl.onended = () => {
+                    clearTimeout(timer);
+                    done();
+                };
+            }).catch(() => {
+                // Nếu trình duyệt chặn âm thanh hoàn toàn
+                clearTimeout(timer);
+                done();
+            });
+        } else {
+            audioEl.onended = () => {
+                clearTimeout(timer);
+                done();
+            };
         }
     });
 }
 
-function safePlayAudio(audioEl, onEndedCallback) {
-    if (!audioEl) {
-        if (onEndedCallback) onEndedCallback();
-        return;
-    }
-
-    let hasEnded = false;
-    const triggerEnd = () => {
-        if (!hasEnded) {
-            hasEnded = true;
-            if (onEndedCallback) onEndedCallback();
-        }
-    };
-
+function safePlayLoop(audioEl) {
+    if (!audioEl) return;
     audioEl.currentTime = 0;
-    const playPromise = audioEl.play();
-
-    if (playPromise !== undefined) {
-        playPromise.then(() => {
-            audioEl.onended = triggerEnd;
-        }).catch(err => {
-            console.warn("Audio play blocked/failed:", err);
-            // Nếu trình duyệt chặn phát tiếng, chờ đúng bằng thời lượng file hoặc 2.5s rồi tự đi tiếp
-            const fallbackDuration = (audioEl.duration && !isNaN(audioEl.duration)) ? audioEl.duration * 1000 : 2500;
-            setTimeout(triggerEnd, fallbackDuration);
-        });
-    } else {
-        audioEl.onended = triggerEnd;
-    }
+    audioEl.play().catch(() => {});
 }
 
 // ==========================================
@@ -82,8 +87,10 @@ function startExperience() {
     if (started) return;
     started = true;
 
-    // Giải phóng khóa âm thanh di động ngay tại sự kiện chạm của người dùng
-    unlockAudios();
+    // Unlock nhẹ âm thanh chính ngay tại thao tác tay của người dùng
+    if (projectorStart) {
+        projectorStart.play().then(() => projectorStart.pause()).catch(() => {});
+    }
 
     if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -113,53 +120,49 @@ function startExperience() {
             } else {
                 clearInterval(timer);
 
-                setTimeout(() => {
+                setTimeout(async () => {
                     if (countdown) countdown.classList.remove("show");
 
-                    setTimeout(() => {
-                        // Sử dụng safePlayAudio thay vì gọi .play() trực tiếp
-                        safePlayAudio(projectorStart, () => {
-                            if (projectorLoop) {
-                                projectorLoop.play().catch(() => {});
-                            }
+                    await new Promise(r => setTimeout(r, 300));
 
-                            if (opening) {
-                                opening.classList.remove("hide");
-                                opening.classList.add("show");
-                            }
+                    // Phát tiếng projectorStart (Tối đa chờ 2.5s rồi bắt buộc phải chạy tiếp)
+                    await playAudioWithFallback(projectorStart, 2500);
 
-                            setTimeout(() => {
-                                if (opening) {
-                                    opening.classList.remove("show");
-                                    opening.classList.add("hide");
-                                }
+                    // Bắt đầu bật tiếng Loop máy chiếu
+                    safePlayLoop(projectorLoop);
 
-                                setTimeout(() => {
-                                    document.body.classList.remove("bg-movie");
-                                    document.body.classList.add("bg-chapter1");
+                    // Hiện Opening Title
+                    if (opening) {
+                        opening.classList.remove("hide");
+                        opening.classList.add("show");
+                    }
 
-                                    setTimeout(() => {
-                                        if (chapter1) {
-                                            chapter1.classList.remove("hide");
-                                            chapter1.classList.add("show");
-                                        }
+                    await new Promise(r => setTimeout(r, 2000));
 
-                                        setTimeout(() => {
-                                            if (chapter1) {
-                                                chapter1.classList.remove("show");
-                                                chapter1.classList.add("hide");
-                                            }
+                    if (opening) {
+                        opening.classList.remove("show");
+                        opening.classList.add("hide");
+                    }
 
-                                            setTimeout(() => {
-                                                playVideo1();
-                                            }, 1000);
+                    await new Promise(r => setTimeout(r, 300));
+                    document.body.classList.remove("bg-movie");
+                    document.body.classList.add("bg-chapter1");
 
-                                        }, 2000);
-                                    }, 500);
-                                }, 300);
-                            }, 2000);
-                        });
-                    }, 500);
+                    await new Promise(r => setTimeout(r, 500));
+                    if (chapter1) {
+                        chapter1.classList.remove("hide");
+                        chapter1.classList.add("show");
+                    }
+
+                    await new Promise(r => setTimeout(r, 2000));
+                    if (chapter1) {
+                        chapter1.classList.remove("show");
+                        chapter1.classList.add("hide");
+                    }
+
+                    await new Promise(r => setTimeout(r, 1000));
+                    playVideo1();
+
                 }, 300);
             }
         }, 800);
@@ -205,7 +208,7 @@ function playMutedVideo(videoEl, onEndedCallback) {
 // ==========================================
 function playVideo1() {
     if (projectorLoop) projectorLoop.pause();
-    if (bgm) bgm.play().catch(() => {});
+    safePlayLoop(bgm);
 
     setTimeout(() => {
         startTypewriterEffect();
@@ -258,7 +261,7 @@ function playVideo2() {
                             if (bgm) bgm.pause();
 
                             setTimeout(() => {
-                                if (bgm2) bgm2.play().catch(() => {});
+                                safePlayLoop(bgm2);
 
                                 if (outroScreen) outroScreen.classList.remove("show");
 
@@ -454,7 +457,7 @@ function typeWriter(element, text, speed, callback) {
 // 7. LOGIC CHAPTER 3
 // ==========================================
 function startChapter3() {
-    if (bgm3) bgm3.play().catch(() => {});
+    safePlayLoop(bgm3);
 
     const ch3 = document.getElementById("chapter3");
 
