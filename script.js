@@ -1,7 +1,7 @@
 // Preload trước các hình nền
 new Image().src = "images/background1.jpg";
 new Image().src = "images/background2.jpg";
-new Image().src = "images/background2.jpg"; // chapter2 background
+new Image().src = "images/chapter2.jpg";
 
 const screen1 = document.getElementById("screen1");
 const curtain = document.getElementById("curtain");
@@ -29,38 +29,30 @@ const bgm3 = document.getElementById("bgm3");
 
 let started = false;
 
-// ==========================================
-// 1. TẠO HÀM UNLOCK AUDIO ĐÚNG CHUẨN MOBILE
-// ==========================================
-let audioCtx = null;
+// Kiếm tra xem thiết bị có phải là Điện thoại / Màn hình nhỏ hay không
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
-function unlockMobileMedia() {
-    // Tạo hoặc khôi phục Web Audio Context để mở khóa cổng âm thanh hệ thống
-    if (!audioCtx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (AudioContext) {
-            audioCtx = new AudioContext();
+// ==========================================
+// 1. CÁC HÀM XỬ LÝ ÂM THANH
+// ==========================================
+function fadeAudio(audio, targetVolume, duration) {
+    if (!audio || isMobile) return; // Mobile bỏ qua fadeVolume để tránh lag
+    const startVolume = audio.volume;
+    const startTime = performance.now();
+
+    function update(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        audio.volume = startVolume + (targetVolume - startVolume) * progress;
+        if (progress < 1) {
+            requestAnimationFrame(update);
         }
     }
-    if (audioCtx && audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
-
-    // Trên Mobile chỉ kích hoạt BGM đầu tiên & Video 1 ngay tại thời điểm chạm
-    if (projectorStart) {
-        projectorStart.play().then(() => {
-            projectorStart.pause();
-            projectorStart.currentTime = 0;
-        }).catch(() => {});
-    }
+    requestAnimationFrame(update);
 }
 
-// Hàm hạ âm lượng an toàn (hỗ trợ cả iOS)
 function safePause(audio) {
     if (!audio) return;
-    try {
-        audio.pause();
-    } catch(e) {}
+    try { audio.pause(); } catch(e) {}
 }
 
 function safePlay(audio, volume = 1.0) {
@@ -69,28 +61,20 @@ function safePlay(audio, volume = 1.0) {
         audio.volume = volume;
         const p = audio.play();
         if (p !== undefined) {
-            p.catch(err => console.log("Autoplay blocked:", err));
+            p.catch(err => console.log("Audio play err:", err));
         }
     } catch(e) {}
 }
 
 // ==========================================
-// 2. CHẠM MÀN HÌNH BẮT ĐẦU
+// 2. KÍCH HOẠT KHI BẤM CHUỘT / PHÍM / CHẠM
 // ==========================================
 function startExperience() {
     if (started) return;
     started = true;
 
-    // Bắt buộc unlock ngay tại cử chỉ chạm đầu tiên
-    unlockMobileMedia();
-
-    // Toàn màn hình
     if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().then(() => {
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock("landscape").catch(() => {});
-            }
-        }).catch(() => {});
+        document.documentElement.requestFullscreen().catch(() => {});
     }
 
     if (screen1) screen1.classList.add("fade-out");
@@ -182,28 +166,33 @@ window.addEventListener("click", startExperience);
 window.addEventListener("touchstart", startExperience, { passive: true });
 
 // ==========================================
-// 3. PHÁT VIDEO 1 & SLIDE ẢNH
+// 3. PHÁT VIDEO 1
 // ==========================================
 function playVideo1() {
     safePause(projectorLoop);
     
     if (bgm) {
-        safePlay(bgm, 1.0);
+        bgm.volume = isMobile ? 1.0 : 0;
+        safePlay(bgm, bgm.volume);
+        if (!isMobile) fadeAudio(bgm, 1, 2000);
     }
 
     setTimeout(() => {
         if (video1) {
             video1.classList.add("show");
-            video1.muted = false;
             
+            // Nếu là Mobile -> Tắt tiếng Video 1 để không bị Safari/Chrome chặn
+            video1.muted = isMobile;
+
             const p = video1.play();
             if (p !== undefined) {
-                p.catch(() => {
-                    // Nếu mobile vẫn chặn tiếng video1 -> bật muted để video tiếp tục chạy không bị kẹt
+                p.catch(err => {
+                    console.log("Autoplay blocked, retrying with muted...", err);
                     video1.muted = true;
                     video1.play();
                 });
             }
+
             startTypewriterEffect();
         }
     }, 1200);
@@ -243,11 +232,13 @@ function playVideo2() {
     if (!video2) return;
     video2.currentTime = 0;
     video2.classList.add("show");
-    video2.muted = false;
+    
+    // Nếu là Mobile -> Tắt tiếng Video 2
+    video2.muted = isMobile;
 
     const p = video2.play();
     if (p !== undefined) {
-        p.catch(() => {
+        p.catch(err => {
             video2.muted = true;
             video2.play();
         });
@@ -270,11 +261,15 @@ function playVideo2() {
 
                     typeWriter(outroText, quoteContent, 70, () => {
                         setTimeout(() => {
-                            safePause(bgm);
+                            if (bgm && !isMobile) fadeAudio(bgm, 0, 2500);
 
                             setTimeout(() => {
+                                safePause(bgm);
+
                                 if (bgm2) {
-                                    safePlay(bgm2, 1.0);
+                                    bgm2.volume = isMobile ? 1.0 : 0;
+                                    safePlay(bgm2, bgm2.volume);
+                                    if (!isMobile) fadeAudio(bgm2, 1.0, 2000);
                                 }
 
                                 if (outroScreen) outroScreen.classList.remove("show");
@@ -286,7 +281,7 @@ function playVideo2() {
                                     startChapter2();
                                 }, 1500);
 
-                            }, 1000);
+                            }, 2600);
                         }, 4000);
                     });
                 }
@@ -367,9 +362,16 @@ function playMutedVideo(videoEl, onEndedCallback) {
     }
     videoEl.currentTime = 0;
     videoEl.classList.add("show");
-    videoEl.muted = true; 
+    videoEl.muted = true;
     
-    videoEl.play().catch(() => {});
+    const p = videoEl.play();
+    if (p !== undefined) {
+        p.catch(err => {
+            console.error("Video play error:", err);
+            videoEl.classList.remove("show");
+            if (onEndedCallback) onEndedCallback();
+        });
+    }
 
     videoEl.onended = () => {
         videoEl.classList.remove("show");
@@ -394,15 +396,16 @@ function runChapter2Outro() {
             setTimeout(() => {
                 if (outroScreen) outroScreen.classList.remove("show");
                 
-                safePause(bgm2);
+                if (bgm2 && !isMobile) fadeAudio(bgm2, 0, 2000);
 
                 document.body.classList.remove("bg-chapter2");
                 document.body.classList.add("bg-chapter3");
 
                 setTimeout(() => {
                     if (outroText) outroText.textContent = "";
+                    safePause(bgm2);
                     startChapter3();
-                }, 1500);
+                }, 2100);
 
             }, 4000);
         });
@@ -489,7 +492,9 @@ function typeWriter(element, text, speed, callback) {
 // ==========================================
 function startChapter3() {
     if (bgm3) {
-        safePlay(bgm3, 1.0);
+        bgm3.volume = isMobile ? 1.0 : 0;
+        safePlay(bgm3, bgm3.volume);
+        if (!isMobile) fadeAudio(bgm3, 1.0, 2500);
     }
 
     const ch3 = document.getElementById("chapter3");
@@ -597,14 +602,15 @@ function runChapter3Ending() {
                 if (tbcHighlight) {
                     typeWriter(tbcHighlight, tbcText, 85, () => {
                         setTimeout(() => {
-                            safePause(bgm3);
+                            if (bgm3 && !isMobile) fadeAudio(bgm3, 0, 3000);
 
                             setTimeout(() => {
+                                safePause(bgm3);
                                 if (outroScreen) outroScreen.classList.remove("show");
                                 runFinalOutro();
-                            }, 1000);
+                            }, 3100);
 
-                        }, 3000);
+                        }, 4000);
                     });
                 } else {
                     runFinalOutro();
