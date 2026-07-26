@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Hành Trình Thanh Xuân</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,36 +13,36 @@
 </head>
 <body>
 
-    <!-- Khung cảnh báo xoay ngang điện thoại -->
+    <!-- Cảnh báo xoay màn hình -->
     <div id="rotate-warning">
         <div class="phone-icon">📱🔄</div>
         <p>Vui lòng xoay ngang điện thoại để có trải nghiệm xem tốt nhất!</p>
     </div>
 
-    <!-- Màn hình mở đầu (Intro) -->
+    <!-- Intro -->
     <div id="screen1">
         <h1>Hành Trình Thanh Xuân</h1>
         <p class="quote">Some memories deserve to become a movie.</p>
         <p class="enter">CHẠM VÀO MÀN HÌNH ĐỂ BẮT ĐẦU</p>
     </div>
 
-    <!-- Hiệu ứng rèm che -->
+    <!-- Rèm che -->
     <div id="curtain">
         <div class="curtain left"></div>
         <div class="curtain right"></div>
     </div>
 
-    <!-- Màn hình đếm ngược -->
+    <!-- Countdown -->
     <div id="countdown">
         <div id="count-number">3</div>
     </div>
 
-    <!-- Tựa đề phim chính -->
+    <!-- Title phim chính -->
     <div id="opening">
         <h2>HÀNH TRÌNH THANH XUÂN</h2>
     </div>
 
-    <!-- Màn hình Chapter 1 -->
+    <!-- Chapter 1 Title -->
     <div id="chapter1" class="chapter-screen">
         <div class="chapter-content">
             <h2 class="chapter-number">CHAPTER 01</h2>
@@ -51,44 +51,59 @@
         </div>
     </div>
 
-    <!-- Danh sách Video -->
-    <video id="video1" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video1.mp4" type="video/mp4">
-    </video>
-    
-    <div id="typewriter-left" class="typewriter-text top-left"></div>
-    <div id="typewriter-right" class="typewriter-text bottom-right"></div>
+    <!-- KHUNG CHỨA TOÀN BỘ VIDEO & CHỮ CỦA PHIM -->
+    <div id="video-container">
+        <!-- Chapter 1 Videos & Subtitles -->
+        <video id="video1" playsinline webkit-playsinline x5-playsinline muted defaultMuted preload="auto">
+            <source src="videos/video1.mp4" type="video/mp4">
+        </video>
+        
+        <!-- Khung chữ riêng Chap 1 -->
+        <div id="typewriter-chap1-group" class="typewriter-group">
+            <div id="typewriter-left" class="typewriter-text top-left"></div>
+            <div id="typewriter-right" class="typewriter-text bottom-right"></div>
+        </div>
 
-    <video id="video2" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video2.mp4" type="video/mp4">
-    </video>
+        <video id="video2" playsinline webkit-playsinline x5-playsinline muted defaultMuted preload="auto">
+            <source src="videos/video2.mp4" type="video/mp4">
+        </video>
 
-    <video id="video3" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video3.mp4" type="video/mp4">
-    </video>
+        <!-- Chapter 2 Videos & Subtitles -->
+        <video id="video3" playsinline webkit-playsinline x5-playsinline muted defaultMuted preload="auto">
+            <source src="videos/video3.mp4" type="video/mp4">
+        </video>
 
-    <video id="video4" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video4.mp4" type="video/mp4">
-    </video>
+        <video id="video4" playsinline webkit-playsinline x5-playsinline muted defaultMuted preload="auto">
+            <source src="videos/video4.mp4" type="video/mp4">
+        </video>
 
-    <video id="video5" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video5.mp4" type="video/mp4">
-    </video>
+        <video id="video5" playsinline webkit-playsinline x5-playsinline muted defaultMuted preload="auto">
+            <source src="videos/video5.mp4" type="video/mp4">
+        </video>
 
-    <video id="video6" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video6.mp4" type="video/mp4">
-    </video>
+        <video id="video6" playsinline webkit-playsinline x5-playsinline muted defaultMuted preload="auto">
+            <source src="videos/video6.mp4" type="video/mp4">
+        </video>
 
-    <div id="typewriter-v3-left" class="typewriter-text top-left"></div>
-    <div id="typewriter-v3-right" class="typewriter-text bottom-right"></div>
+        <!-- Khung chữ riêng Chap 2 -->
+        <div id="typewriter-chap2-group" class="typewriter-group">
+            <div id="typewriter-v3-left" class="typewriter-text top-left"></div>
+            <div id="typewriter-v3-right" class="typewriter-text bottom-right"></div>
+        </div>
 
-    <!-- Màn hình Outro -->
+        <!-- Chapter 3 Video -->
+        <video id="video7" playsinline webkit-playsinline x5-playsinline muted defaultMuted preload="auto">
+            <source src="videos/video7.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <!-- Màn hình Outro (Các câu nói chuyển cảnh) -->
     <div id="outro-screen">
         <p id="outro-text"></p>
         <p id="tbc-highlight" class="tbc-highlight"></p>
     </div>
 
-    <!-- Màn hình Chapter 2 -->
+    <!-- Chapter 2 Title -->
     <div id="chapter2-screen" class="chapter-screen">
         <div class="chapter-content">
             <h2 class="chapter-number">CHAPTER 02</h2>
@@ -97,20 +112,16 @@
         </div>
     </div>
 
-    <!-- Màn hình Chapter 3 -->
+    <!-- Chapter 3 Title -->
     <div id="chapter3" class="chapter-title">
         <h2>CHAPTER 03</h2>
         <h1>PRESENT AND FUTURE</h1>
     </div>
 
-    <video id="video7" playsinline webkit-playsinline muted preload="auto">
-        <source src="videos/video7.mp4" type="video/mp4">
-    </video>
-
-    <!-- Khung hiển thị slide ảnh -->
+    <!-- Slide ảnh -->
     <img id="imageViewer" src="" alt="Slide Image">
-    
-    <!-- Các tệp âm thanh -->
+
+    <!-- Audio -->
     <audio id="projectorStart" src="audio/projector-start.mp3" preload="auto"></audio>
     <audio id="projectorLoop" src="audio/projector-loop.mp3" loop preload="auto"></audio>
     <audio id="bgm" loop preload="auto">
@@ -121,7 +132,7 @@
     </audio>
     <audio id="bgm3" src="audio/bgm3.mp3" loop preload="auto"></audio>
 
-    <!-- Màn hình Cuối Phim (Credits) -->
+    <!-- Credits cuối phim -->
     <div id="credits-screen" class="credits-container">
         <div class="credits-content">
             <h1 class="credits-title">"THANH XUÂN RỰC RỠ"</h1>
