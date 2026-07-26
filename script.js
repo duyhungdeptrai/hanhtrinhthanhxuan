@@ -1,6 +1,11 @@
-// Preload hình ảnh tối ưu (giữ reference tránh Garbage Collection)
+// 1. Preload trước các hình nền (đã thêm chapter3.jpg)
 const preloadedImages = [];
-["images/background1.jpg", "images/background2.jpg", "images/chapter2.jpg"].forEach(src => {
+[
+    "images/background1.jpg", 
+    "images/background2.jpg", 
+    "images/chapter2.jpg", 
+    "images/chapter3.jpg"
+].forEach(src => {
     const img = new Image();
     img.src = src;
     preloadedImages.push(img);
@@ -33,9 +38,6 @@ const bgm3 = document.getElementById("bgm3");
 let started = false;
 let activeTypewriterTimers = [];
 
-// Helper delay bằng Promise giúp viết code bất đồng bộ sạch hơn
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 // Cấu hình bắt buộc thuộc tính di động cho tất cả video
 const allVideos = [video1, video2, video3, video4, video5, video6, video7];
 allVideos.forEach(v => {
@@ -51,7 +53,7 @@ allVideos.forEach(v => {
 });
 
 // ==========================================
-// HÀM DỌN SẠCH CHỮ & TIMERS
+// HÀM DỌN SẠCH TẤT CẢ CHỮ ĐỂ KHÔNG BỊ ĐÈ
 // ==========================================
 function clearAllTypewriterTexts() {
     activeTypewriterTimers.forEach(t => clearTimeout(t));
@@ -73,11 +75,14 @@ function clearAllTypewriterTexts() {
 }
 
 // ==========================================
-// HÀM BẢO ĐẢM PHÁT AUDIO
+// HÀM BẢO ĐẢM PHÁT AUDIO KHÔNG BAO GIỜ BỊ TREO LUỒNG
 // ==========================================
 function playAudioWithFallback(audioEl, maxWaitMs = 3000) {
     return new Promise((resolve) => {
-        if (!audioEl) return resolve();
+        if (!audioEl) {
+            resolve();
+            return;
+        }
 
         let isDone = false;
         const done = () => {
@@ -119,9 +124,9 @@ function safePlayLoop(audioEl) {
 }
 
 // ==========================================
-// 1. KÍCH HOẠT SỰ KIỆN (Async/Await)
+// 1. KÍCH HOẠT SỰ KIỆN
 // ==========================================
-async function startExperience() {
+function startExperience() {
     if (started) return;
     started = true;
 
@@ -138,60 +143,70 @@ async function startExperience() {
     if (screen1) screen1.classList.add("fade-out");
     if (curtain) curtain.classList.add("close");
 
-    await delay(1200);
-
-    if (curtain) {
-        curtain.classList.remove("close");
-        curtain.classList.add("open");
-    }
-
-    if (countdown) countdown.classList.add("show");
-    const numbers = ["3", "2", "1"];
-
-    for (let i = 0; i < numbers.length; i++) {
-        if (countNumber) countNumber.textContent = numbers[i];
-        if (numbers[i] === "2") {
-            document.body.classList.add("bg-movie");
+    setTimeout(() => {
+        if (curtain) {
+            curtain.classList.remove("close");
+            curtain.classList.add("open");
         }
-        await delay(800);
-    }
 
-    if (countdown) countdown.classList.remove("show");
-    await delay(300);
+        if (countdown) countdown.classList.add("show");
+        const numbers = ["3", "2", "1"];
+        let i = 0;
+        if (countNumber) countNumber.textContent = numbers[i];
 
-    await playAudioWithFallback(projectorStart, 2500);
-    safePlayLoop(projectorLoop);
+        const timer = setInterval(() => {
+            i++;
+            if (i < numbers.length) {
+                if (countNumber) countNumber.textContent = numbers[i];
+                if (numbers[i] === "2") {
+                    document.body.classList.add("bg-movie");
+                }
+            } else {
+                clearInterval(timer);
 
-    if (opening) {
-        opening.classList.remove("hide");
-        opening.classList.add("show");
-    }
+                setTimeout(async () => {
+                    if (countdown) countdown.classList.remove("show");
 
-    await delay(2000);
+                    await new Promise(r => setTimeout(r, 300));
+                    await playAudioWithFallback(projectorStart, 2500);
 
-    if (opening) {
-        opening.classList.remove("show");
-        opening.classList.add("hide");
-    }
+                    safePlayLoop(projectorLoop);
 
-    await delay(300);
-    document.body.classList.remove("bg-movie");
-    document.body.classList.add("bg-chapter1");
+                    if (opening) {
+                        opening.classList.remove("hide");
+                        opening.classList.add("show");
+                    }
 
-    await delay(500);
-    if (chapter1) {
-        chapter1.classList.remove("hide");
-        chapter1.classList.add("show");
-    }
+                    await new Promise(r => setTimeout(r, 2000));
 
-    await delay(2000);
-    if (chapter1) {
-        chapter1.classList.remove("show");
-        chapter1.classList.add("hide");
-    }
+                    if (opening) {
+                        opening.classList.remove("show");
+                        opening.classList.add("hide");
+                    }
 
-    await delay(1000);
-    playVideo1();
+                    await new Promise(r => setTimeout(r, 300));
+                    document.body.classList.remove("bg-movie");
+                    document.body.classList.add("bg-chapter1");
+
+                    await new Promise(r => setTimeout(r, 500));
+                    if (chapter1) {
+                        chapter1.classList.remove("hide");
+                        chapter1.classList.add("show");
+                    }
+
+                    await new Promise(r => setTimeout(r, 2000));
+                    if (chapter1) {
+                        chapter1.classList.remove("show");
+                        chapter1.classList.add("hide");
+                    }
+
+                    await new Promise(r => setTimeout(r, 1000));
+                    playVideo1();
+
+                }, 300);
+            }
+        }, 800);
+    }, 1200);
 }
 
 window.addEventListener("keydown", (e) => {
@@ -201,7 +216,7 @@ window.addEventListener("click", startExperience);
 window.addEventListener("touchstart", startExperience, { passive: true });
 
 // ==========================================
-// 2. PHÁT VIDEO MUTED
+// 2. HÀM PHÁT VIDEO ÉP HIỂN THỊ CẬP NHẬT
 // ==========================================
 function playMutedVideo(videoEl, onEndedCallback) {
     if (!videoEl) {
@@ -232,6 +247,7 @@ function playMutedVideo(videoEl, onEndedCallback) {
     videoEl.muted = true;
     videoEl.defaultMuted = true;
     videoEl.playsInline = true;
+
     videoEl.style.display = "block";
     videoEl.classList.add("show");
 
@@ -258,7 +274,7 @@ function playVideo1() {
         clearAllTypewriterTexts();
         startTypewriterEffect();
 
-        playMutedVideo(video1, async () => {
+        playMutedVideo(video1, () => {
             clearAllTypewriterTexts();
 
             if (imageViewer) {
@@ -266,16 +282,14 @@ function playVideo1() {
                 imageViewer.classList.add("show");
             }
 
-            await delay(3000);
-            changeImage("images/image2.jpg");
-            await delay(3000);
-            changeImage("images/image3.jpg");
-            await delay(3000);
-            changeImage("images/image4.jpg");
+            setTimeout(() => changeImage("images/image2.jpg"), 3000);
+            setTimeout(() => changeImage("images/image3.jpg"), 6000);
+            setTimeout(() => changeImage("images/image4.jpg"), 9000);
 
-            await delay(3000);
-            if (imageViewer) imageViewer.classList.remove("show");
-            playVideo2();
+            setTimeout(() => {
+                if (imageViewer) imageViewer.classList.remove("show");
+                playVideo2();
+            }, 12000);
         });
     }, 1200);
 }
@@ -303,12 +317,16 @@ function playVideo2() {
 
                             setTimeout(() => {
                                 safePlayLoop(bgm2);
+
                                 if (outroScreen) outroScreen.classList.remove("show");
 
                                 document.body.classList.remove("bg-chapter1");
                                 document.body.classList.add("bg-chapter2");
 
-                                setTimeout(startChapter2, 1500);
+                                setTimeout(() => {
+                                    startChapter2();
+                                }, 1500);
+
                             }, 1000);
                         }, 4000);
                     });
@@ -328,7 +346,11 @@ function startChapter2() {
 
     setTimeout(() => {
         if (chapter2Screen) chapter2Screen.classList.remove("show");
-        setTimeout(runChapter2Content, 1500);
+
+        setTimeout(() => {
+            runChapter2Content();
+        }, 1500);
+
     }, 3500);
 }
 
@@ -339,35 +361,34 @@ function runChapter2Content() {
     playMutedVideo(video3, () => {
         clearAllTypewriterTexts();
 
-        playMutedVideo(video4, async () => {
+        playMutedVideo(video4, () => {
             if (imageViewer) {
                 imageViewer.src = "images/image5.jpg";
                 imageViewer.classList.add("show");
             }
 
-            await delay(3000);
-            changeImage("images/image6.jpg");
-            await delay(3000);
-            changeImage("images/image7.jpg");
+            setTimeout(() => changeImage("images/image6.jpg"), 3000);
+            setTimeout(() => changeImage("images/image7.jpg"), 6000);
 
-            await delay(3000);
-            if (imageViewer) imageViewer.classList.remove("show");
+            setTimeout(() => {
+                if (imageViewer) imageViewer.classList.remove("show");
 
-            playMutedVideo(video5, () => {
-                playMutedVideo(video6, async () => {
-                    if (imageViewer) {
-                        imageViewer.src = "images/image8.jpg";
-                        imageViewer.classList.add("show");
-                    }
+                playMutedVideo(video5, () => {
+                    playMutedVideo(video6, () => {
+                        if (imageViewer) {
+                            imageViewer.src = "images/image8.jpg";
+                            imageViewer.classList.add("show");
+                        }
 
-                    await delay(3000);
-                    changeImage("images/image9.jpg");
+                        setTimeout(() => changeImage("images/image9.jpg"), 3000);
 
-                    await delay(3000);
-                    if (imageViewer) imageViewer.classList.remove("show");
-                    runChapter2Outro();
+                        setTimeout(() => {
+                            if (imageViewer) imageViewer.classList.remove("show");
+                            runChapter2Outro();
+                        }, 6000);
+                    });
                 });
-            });
+            }, 9000);
         });
     });
 }
@@ -384,8 +405,10 @@ function runChapter2Outro() {
         typeWriter(outroText, quoteChapter2, 75, () => {
             setTimeout(() => {
                 if (outroScreen) outroScreen.classList.remove("show");
+
                 if (bgm2) bgm2.pause();
 
+                // DÒNG ĐÃ ĐƯỢC CHỈNH SỬA: Chuyển background sang bg-chapter3
                 document.body.classList.remove("bg-chapter2");
                 document.body.classList.add("bg-chapter3");
 
@@ -393,6 +416,7 @@ function runChapter2Outro() {
                     clearAllTypewriterTexts();
                     startChapter3();
                 }, 1500);
+
             }, 4000);
         });
     }, 1000);
@@ -412,7 +436,7 @@ function changeImage(src) {
             imageViewer.src = src;
             imageViewer.classList.add("show");
         };
-    }, 500);
+    }, 1000);
 }
 
 function typeWriter(element, text, speed, callback) {
@@ -489,7 +513,9 @@ function startChapter3() {
                     ch3.style.visibility = "hidden";
                     runChapter3Content();
                 }, 1500);
+
             }, 3500);
+
         }, 500);
     } else {
         runChapter3Content();
@@ -500,6 +526,7 @@ function runChapter3Content() {
     clearAllTypewriterTexts();
     const outroScreen = document.getElementById("outro-screen");
     const outroText = document.getElementById("outro-text");
+
     const quote1 = "Cảm ơn em vì đã xuất hiện và cùng anh tạo nên những ký ức tuyệt vời nhất...";
 
     if (outroScreen) outroScreen.classList.add("show");
@@ -513,13 +540,16 @@ function runChapter3Content() {
                     clearAllTypewriterTexts();
                     playVideo7();
                 }, 1200);
+
             }, 4000);
         });
     }, 1000);
 }
 
 function playVideo7() {
-    playMutedVideo(video7, runChapter3Ending);
+    playMutedVideo(video7, () => {
+        runChapter3Ending();
+    });
 }
 
 function runChapter3Ending() {
@@ -531,7 +561,8 @@ function runChapter3Ending() {
     const quote2 = "Hy vọng sau này chúng ta vẫn luôn cùng nhau bước tiếp trên những hành trình phía trước...";
     const tbcText = "To be continued...";
 
-    document.body.classList.remove("bg-chapter3", "bg-movie");
+    // DÒNG ĐÃ ĐƯỢC CHỈNH SỬA: Giữ lại bg-chapter3 để hình nền không bị tắt đột ngột
+    document.body.classList.remove("bg-movie");
 
     if (outroScreen) outroScreen.classList.add("show");
 
@@ -548,6 +579,7 @@ function runChapter3Ending() {
                                 clearAllTypewriterTexts();
                                 runFinalOutro();
                             }, 1000);
+
                         }, 3000);
                     });
                 } else {
