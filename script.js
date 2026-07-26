@@ -29,6 +29,17 @@ const bgm3 = document.getElementById("bgm3");
 
 let started = false;
 
+// Cấu hình thuộc tính bắt buộc cho tất cả Video ngay khi load trang
+[video1, video2, video3, video4, video5, video6, video7].forEach(v => {
+    if (v) {
+        v.muted = true;
+        v.defaultMuted = true;
+        v.playsInline = true;
+        v.setAttribute("playsinline", "");
+        v.setAttribute("webkit-playsinline", "");
+    }
+});
+
 // ==========================================
 // HÀM BẢO ĐẢM PHÁT AUDIO KHÔNG BAO GIỜ BỊ TREO LUỒNG
 // ==========================================
@@ -48,7 +59,6 @@ function playAudioWithFallback(audioEl, maxWaitMs = 3000) {
             }
         };
 
-        // Bẫy thời gian: Nếu quá maxWaitMs mà audio không phát xong hoặc bị chặn, tự động đi tiếp
         const timer = setTimeout(done, maxWaitMs);
 
         audioEl.currentTime = 0;
@@ -61,7 +71,6 @@ function playAudioWithFallback(audioEl, maxWaitMs = 3000) {
                     done();
                 };
             }).catch(() => {
-                // Nếu trình duyệt chặn âm thanh hoàn toàn
                 clearTimeout(timer);
                 done();
             });
@@ -87,7 +96,7 @@ function startExperience() {
     if (started) return;
     started = true;
 
-    // Unlock nhẹ âm thanh chính ngay tại thao tác tay của người dùng
+    // Unlock nhẹ âm thanh chính
     if (projectorStart) {
         projectorStart.play().then(() => projectorStart.pause()).catch(() => {});
     }
@@ -125,13 +134,10 @@ function startExperience() {
 
                     await new Promise(r => setTimeout(r, 300));
 
-                    // Phát tiếng projectorStart (Tối đa chờ 2.5s rồi bắt buộc phải chạy tiếp)
                     await playAudioWithFallback(projectorStart, 2500);
 
-                    // Bắt đầu bật tiếng Loop máy chiếu
                     safePlayLoop(projectorLoop);
 
-                    // Hiện Opening Title
                     if (opening) {
                         opening.classList.remove("hide");
                         opening.classList.add("show");
@@ -176,7 +182,7 @@ window.addEventListener("click", startExperience);
 window.addEventListener("touchstart", startExperience, { passive: true });
 
 // ==========================================
-// 2. HÀM PHÁT VIDEO MUTED TUYỆT ĐỐI
+// 2. HÀM PHÁT VIDEO CHUẨN TRÊN MOBILE
 // ==========================================
 function playMutedVideo(videoEl, onEndedCallback) {
     if (!videoEl) {
@@ -184,23 +190,32 @@ function playMutedVideo(videoEl, onEndedCallback) {
         return;
     }
     
-    videoEl.currentTime = 0;
-    videoEl.muted = true;
-    videoEl.classList.add("show");
-    
-    const p = videoEl.play();
-    if (p !== undefined) {
-        p.catch(err => {
-            console.error("Lỗi phát video:", err);
+    let hasFinished = false;
+    const finish = () => {
+        if (!hasFinished) {
+            hasFinished = true;
+            videoEl.onended = null;
+            videoEl.onerror = null;
             videoEl.classList.remove("show");
             if (onEndedCallback) onEndedCallback();
+        }
+    };
+
+    videoEl.currentTime = 0;
+    videoEl.muted = true;
+    videoEl.playsInline = true;
+    videoEl.classList.add("show");
+    
+    videoEl.onended = finish;
+    videoEl.onerror = finish;
+
+    const playPromise = videoEl.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(err => {
+            console.error("Lỗi phát video:", err);
+            finish();
         });
     }
-
-    videoEl.onended = () => {
-        videoEl.classList.remove("show");
-        if (onEndedCallback) onEndedCallback();
-    };
 }
 
 // ==========================================
@@ -230,9 +245,7 @@ function playVideo1() {
 
             setTimeout(() => {
                 if (imageViewer) imageViewer.classList.remove("show");
-            }, 12000);
-
-            setTimeout(() => {
+                // Phát ngay video 2 sau khi ẩn ảnh image4
                 playVideo2();
             }, 12000);
         });
@@ -318,9 +331,7 @@ function runChapter2Content() {
 
             setTimeout(() => {
                 if (imageViewer) imageViewer.classList.remove("show");
-            }, 9000);
-
-            setTimeout(() => {
+                
                 playMutedVideo(video5, () => {
                     playMutedVideo(video6, () => {
                         if (imageViewer) {
@@ -332,16 +343,11 @@ function runChapter2Content() {
 
                         setTimeout(() => {
                             if (imageViewer) imageViewer.classList.remove("show");
-                        }, 6000);
-
-                        setTimeout(() => {
                             runChapter2Outro();
-                        }, 7200);
-
+                        }, 6000);
                     });
                 });
             }, 9000);
-
         });
     });
 }
